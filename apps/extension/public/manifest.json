@@ -1,20 +1,29 @@
 {
   "manifest_version": 3,
-  "name": "Referral Extension",
-  "version": "0.1.0",
-  "description": "Get rewards for your product research.",
-  "permissions": ["storage"],
-  "host_permissions": ["https://chat.openai.com/*"],
+  "name": "Referral Attribution Bridge",
+  "version": "1.0",
+  "description": "Connects ChatGPT product recommendations to their original sources with fair revenue sharing",
+  "permissions": [
+    "storage",
+    "webRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://chat.openai.com/*"],
-      "js": ["content.js"]
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
     }
   ],
   "action": {
-    "default_title": "Referral Extension"
+    "default_popup": "popup.html",
+    "default_title": "Referral Attribution Bridge"
   }
 } 
