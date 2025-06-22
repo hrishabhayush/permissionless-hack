@@ -11,6 +11,7 @@
     "clean": "pnpm run -r clean",
     "extension:dev": "pnpm --filter extension dev",
     "extension:build": "pnpm --filter extension build",
+    "extension:package": "pnpm extension:build && cp -r apps/extension/dist referral && zip -r referral.zip referral && rm -rf referral",
     "web:dev": "pnpm --filter web dev",
     "web:build": "pnpm --filter web build",
     "api:dev": "pnpm --filter api dev",

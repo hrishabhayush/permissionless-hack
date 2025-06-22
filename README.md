@@ -152,11 +152,32 @@ pnpm install
 # Build extension
 pnpm extension:build
 
+# Package extension for distribution
+pnpm extension:package
+
 # Development mode (with watch)
 cd apps/extension && pnpm dev
 
 # Type checking
 cd apps/extension && pnpm type-check
+```
+
+### Extension Packaging
+
+The `pnpm extension:package` command creates a distributable zip file:
+
+1. **Builds** the extension (`pnpm extension:build`)
+2. **Copies** `apps/extension/dist/` to a temporary `referral/` folder
+3. **Zips** the folder as `referral.zip`
+4. **Cleans up** by removing the temporary `referral/` folder
+5. **Preserves** the original `dist/` folder for development
+
+**Result:** `referral.zip` ready for Chrome Web Store or manual distribution
+
+**Usage:**
+```bash
+pnpm extension:package
+# Creates referral.zip in project root
 ```
 
 ## Business Model
