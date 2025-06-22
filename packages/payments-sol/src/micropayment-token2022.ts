@@ -292,24 +292,24 @@ export class Token2022MicropaymentDemo {
 }
 
 // Demo usage
-if (require.main === module) {
-  const demo = new Token2022MicropaymentDemo();
-  
-  async function runDemo() {
-    try {
-      // Check balances
-      await demo.checkBalances();
-      
-      // Check transaction cost
-      await demo.checkTransactionCost();
-      
-      // Uncomment to send a test micropayment to yourself
-      // await demo.sendMicropayment(CONFIG.WALLET_ADDRESS, 0.01);
-      
-    } catch (error) {
-      console.error('Demo failed:', error);
-    }
+async function runDemo() {
+  try {
+    const demo = new Token2022MicropaymentDemo();
+    
+    // Check balances
+    await demo.checkBalances();
+    
+    // Check transaction cost
+    await demo.checkTransactionCost();
+    
+    // Uncomment to send a test micropayment to yourself
+    // await demo.sendMicropayment(CONFIG.WALLET_ADDRESS, 0.01);
+    
+  } catch (error) {
+    console.error('Demo failed:', error);
   }
-  
+}
+
+if (require.main === module) {
   runDemo();
 } 
