@@ -8,11 +8,7 @@
     "dev": "ts-node src/micropayment-token2022.ts",
     "check-balance": "ts-node -e \"import('./src/micropayment-token2022').then(m => new m.Token2022MicropaymentDemo().checkBalances())\"",
     "estimate-cost": "ts-node -e \"import('./src/micropayment-token2022').then(m => new m.Token2022MicropaymentDemo().checkTransactionCost())\"",
-    "inspect-wallet": "ts-node src/wallet-inspector.ts",
-    "check-token2022": "ts-node src/check-token2022.ts",
     "demo": "ts-node src/micropayment-demo.ts",
-    "quick-send": "ts-node src/quick-send.ts",
-    "fast-send": "ts-node src/fast-send.ts",
     "send-to-recipient": "ts-node src/send-to-recipient.ts",
     "inspect-tx": "ts-node src/transaction-inspector.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
