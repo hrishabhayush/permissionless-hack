@@ -10,6 +10,11 @@ node_modules/
 # TypeScript build output
 dist/
 build/
+*.tsbuildinfo
+
+# Lock files (using pnpm-lock.yaml instead)
+package-lock.json
+yarn.lock
 
 # Logs
 *.log
