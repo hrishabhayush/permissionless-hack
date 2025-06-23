@@ -1,1 +1,317 @@
-(()=>{"use strict";console.log("🔧 Referral Extension Content Script Loaded"),console.log("🔧 Current URL:",window.location.href),console.log("🔧 Domain:",window.location.hostname);const o={username:"testuser",walletAddress:"0x742d35Cc6635C0532925a3b8D2c2C5c5b2b4b3b3"};console.log("🔧 Test user loaded:",o);const e={news:/\b(cnn\.com|bbc\.com|reuters\.com|ap\.org|npr\.org|washingtonpost\.com|nytimes\.com|wsj\.com)\b/i,fashion:/\b(vogue\.com|elle\.com|harpersbazaar\.com|gq\.com|fashionista\.com|wwd\.com)\b/i,sneaker:/\b(sneakernews\.com|hypebeast\.com|nicekicks\.com|solecollector\.com|kicksonfire\.com)\b/i,social:/\b(reddit\.com|twitter\.com|instagram\.com|tiktok\.com|youtube\.com|facebook\.com)\b/i,vision:/\b(visioncenter\.org|allaboutvision\.com|aao\.org|reviewofoptometry\.com)\b/i};function t(o){for(const[t,n]of Object.entries(e))if(n.test(o))return t;return"other"}function n(){console.log("🔧 Checking for links in the page...");const o=document.querySelectorAll("a[href]");console.log("🔧 Total links found:",o.length);let e=0,t=0;return o.forEach((o,n)=>{const s=o.href;s.includes("chatgpt.com")&&(e++,console.log("🔧 ChatGPT link found:",s)),s.includes("utm_source=chatgpt.com")&&(t++,console.log("🚨 UTM ChatGPT link found:",s),console.log("🚨 Link element:",o),console.log("🚨 Link text:",o.textContent),console.log("🚨 Link parent:",o.parentElement)),n<5&&s.startsWith("http")&&!s.includes("chatgpt.com")&&console.log(`🔧 External link ${n+1}:`,s)}),console.log("🔧 ChatGPT links:",e),console.log("🔧 UTM ChatGPT links:",t),{totalLinks:o.length,chatgptLinks:e,utmLinks:t}}function s(o){console.log("🔧 Processing message element:",o);const e=o.textContent||"";if(console.log("🔧 Message text length:",e.length),e.length>0){const n=function(o){console.log("🔧 Extracting sources from text:",o.substring(0,200)+"...");const e=new Set;[/\b([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g,/(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?:\/[^\s]*)?/g,/\(([^)]+\.[a-zA-Z]{2,})\)/g,/\[([^\]]+\.[a-zA-Z]{2,})\]/g].forEach(t=>{const n=o.match(t);n&&(console.log("🔧 Pattern matches found:",n),n.forEach(o=>{const t=o.replace(/^https?:\/\//,"").replace(/^www\./,"").replace(/\/.*$/,"").replace(/[()[\]]/g,"");t.includes(".")&&!t.includes(" ")&&e.add(t.toLowerCase())}))});const t=Array.from(e);return console.log("🔧 Extracted sources:",t),t}(e);if(n.length>0){console.log("🎯 Sources found in message:",n);const e=n.map(o=>({domain:o,category:t(o)}));console.log("📊 Categorized sources:",e);const s=o.querySelectorAll("a[href]");console.log("🔧 Links in this message:",s.length),s.forEach(o=>{const e=o.href;console.log("🔧 Message link:",e),e.includes("utm_source=chatgpt.com")&&console.log("🚨 FOUND UTM LINK IN MESSAGE:",e)})}}n()}function c(){console.log("🔧 Setting up message observer..."),n(),new MutationObserver(o=>{console.log("🔧 DOM mutation detected, mutations count:",o.length),o.forEach(o=>{"childList"===o.type&&o.addedNodes.forEach(o=>{if(o.nodeType===Node.ELEMENT_NODE){const e=o,t=e.querySelectorAll('[data-message-author-role="assistant"]');console.log("🔧 New assistant messages found:",t.length),t.forEach(s),e.matches('[data-message-author-role="assistant"]')&&(console.log("🔧 Added node is an assistant message"),s(e));const n=e.querySelectorAll("a[href]");n.length>0&&(console.log("🔧 New links added:",n.length),n.forEach(o=>{const e=o.href;e.includes("utm_source=chatgpt.com")&&console.log("🚨 NEW UTM LINK DETECTED:",e)}))}})}),setTimeout(n,100)}).observe(document.body,{childList:!0,subtree:!0}),console.log("🔧 Observer set up successfully")}function l(){const e=new URLSearchParams(window.location.search),t=e.get("utm_source");if(console.log("🔧 Checking URL parameters:",{fullURL:window.location.href,search:window.location.search,utmSource:t,allParams:Object.fromEntries(e.entries())}),"chatgpt.com"===t){console.log("🎯 CHATGPT REFERRAL DETECTED!"),console.log("🎯 This page was reached from ChatGPT");const t=e.get("ref");if(t)console.log("🔧 Referral parameter already exists:",t);else{console.log("🔧 Adding referral parameter...");const t=`${o.username}_${Date.now()}`;e.set("ref",t);const n=`${window.location.protocol}//${window.location.host}${window.location.pathname}?${e.toString()}${window.location.hash}`;console.log("🔄 URL modification:",{original:window.location.href,modified:n,referralParam:t}),window.history.replaceState({},"",n),console.log("✅ URL updated successfully!"),console.log("✅ New URL:",window.location.href),console.log("📊 Attribution Data:",{user:o.username,wallet:o.walletAddress,source:"chatgpt.com",destination:window.location.hostname,timestamp:(new Date).toISOString(),referralId:t}),chrome.runtime.sendMessage({type:"ATTRIBUTION_DETECTED",data:{user:o.username,wallet:o.walletAddress,source:"chatgpt.com",destination:window.location.hostname,originalUrl:window.location.href.replace(`&ref=${t}`,"").replace(`?ref=${t}`,""),modifiedUrl:window.location.href,referralId:t,timestamp:(new Date).toISOString()}}).catch(o=>console.log("🔧 Background script message failed:",o))}return!0}return console.log("🔧 No ChatGPT referral detected"),t&&console.log("🔧 Other UTM source found:",t),!1}function a(){console.log("🔧 Initializing referral extension..."),function(){const o=window.location.href,e=window.location.hostname;return!["chrome://","chrome-extension://","moz-extension://","about:","file://","localhost","127.0.0.1"].some(t=>o.startsWith(t)||e.includes("localhost"))||(console.log("🔧 Skipping internal/development page"),!1)}()&&(console.log("🔧 Running on relevant page:",window.location.hostname),l()?console.log("🎯 ChatGPT referral page detected!"):console.log("🔧 Regular page - no ChatGPT referral detected"))}"loading"===document.readyState?document.addEventListener("DOMContentLoaded",c):c(),setInterval(()=>{console.log("🔧 Periodic link check..."),n()},5e3),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",a):a(),window.addEventListener("load",()=>{console.log("🔧 Window loaded, re-checking for referrals..."),setTimeout(l,500)}),console.log("🔧 Content script setup complete")})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/*!************************!*\
+  !*** ./src/content.ts ***!
+  \************************/
+
+console.log('🔧 Referral Extension Content Script Loaded');
+console.log('🔧 Current URL:', window.location.href);
+console.log('🔧 Domain:', window.location.hostname);
+// Test user data
+const contentTestUser = {
+    username: 'testuser',
+    walletAddress: '0x742d35Cc6635C0532925a3b8D2c2C5c5b2b4b3b3'
+};
+console.log('🔧 Test user loaded:', contentTestUser);
+// Source patterns for categorization
+const sourcePatterns = {
+    news: /\b(cnn\.com|bbc\.com|reuters\.com|ap\.org|npr\.org|washingtonpost\.com|nytimes\.com|wsj\.com)\b/i,
+    fashion: /\b(vogue\.com|elle\.com|harpersbazaar\.com|gq\.com|fashionista\.com|wwd\.com)\b/i,
+    sneaker: /\b(sneakernews\.com|hypebeast\.com|nicekicks\.com|solecollector\.com|kicksonfire\.com)\b/i,
+    social: /\b(reddit\.com|twitter\.com|instagram\.com|tiktok\.com|youtube\.com|facebook\.com)\b/i,
+    vision: /\b(visioncenter\.org|allaboutvision\.com|aao\.org|reviewofoptometry\.com)\b/i
+};
+function categorizeSource(domain) {
+    for (const [category, pattern] of Object.entries(sourcePatterns)) {
+        if (pattern.test(domain)) {
+            return category;
+        }
+    }
+    return 'other';
+}
+function extractSources(text) {
+    console.log('🔧 Extracting sources from text:', text.substring(0, 200) + '...');
+    // Look for various citation patterns
+    const patterns = [
+        /\b([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/g, // Basic domain pattern
+        /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})(?:\/[^\s]*)?/g, // URL pattern
+        /\(([^)]+\.[a-zA-Z]{2,})\)/g, // Domains in parentheses
+        /\[([^\]]+\.[a-zA-Z]{2,})\]/g, // Domains in brackets
+    ];
+    const sources = new Set();
+    patterns.forEach(pattern => {
+        const matches = text.match(pattern);
+        if (matches) {
+            console.log('🔧 Pattern matches found:', matches);
+            matches.forEach(match => {
+                // Clean up the match to get just the domain
+                const cleaned = match.replace(/^https?:\/\//, '')
+                    .replace(/^www\./, '')
+                    .replace(/\/.*$/, '')
+                    .replace(/[()[\]]/g, '');
+                if (cleaned.includes('.') && !cleaned.includes(' ')) {
+                    sources.add(cleaned.toLowerCase());
+                }
+            });
+        }
+    });
+    const sourceArray = Array.from(sources);
+    console.log('🔧 Extracted sources:', sourceArray);
+    return sourceArray;
+}
+function checkForLinks() {
+    console.log('🔧 Checking for links in the page...');
+    // Check all links on the page
+    const allLinks = document.querySelectorAll('a[href]');
+    console.log('🔧 Total links found:', allLinks.length);
+    let chatgptLinks = 0;
+    let utmLinks = 0;
+    allLinks.forEach((link, index) => {
+        const href = link.href;
+        if (href.includes('chatgpt.com')) {
+            chatgptLinks++;
+            console.log('🔧 ChatGPT link found:', href);
+        }
+        if (href.includes('utm_source=chatgpt.com')) {
+            utmLinks++;
+            console.log('🚨 UTM ChatGPT link found:', href);
+            console.log('🚨 Link element:', link);
+            console.log('🚨 Link text:', link.textContent);
+            console.log('🚨 Link parent:', link.parentElement);
+        }
+        // Log first few external links for debugging
+        if (index < 5 && href.startsWith('http') && !href.includes('chatgpt.com')) {
+            console.log(`🔧 External link ${index + 1}:`, href);
+        }
+    });
+    console.log('🔧 ChatGPT links:', chatgptLinks);
+    console.log('🔧 UTM ChatGPT links:', utmLinks);
+    return { totalLinks: allLinks.length, chatgptLinks, utmLinks };
+}
+function processMessage(messageElement) {
+    console.log('🔧 Processing message element:', messageElement);
+    const messageText = messageElement.textContent || '';
+    console.log('🔧 Message text length:', messageText.length);
+    if (messageText.length > 0) {
+        const sources = extractSources(messageText);
+        if (sources.length > 0) {
+            console.log('🎯 Sources found in message:', sources);
+            // Categorize sources
+            const categorizedSources = sources.map(source => ({
+                domain: source,
+                category: categorizeSource(source)
+            }));
+            console.log('📊 Categorized sources:', categorizedSources);
+            // Check for links in this specific message
+            const messageLinks = messageElement.querySelectorAll('a[href]');
+            console.log('🔧 Links in this message:', messageLinks.length);
+            messageLinks.forEach(link => {
+                const href = link.href;
+                console.log('🔧 Message link:', href);
+                if (href.includes('utm_source=chatgpt.com')) {
+                    console.log('🚨 FOUND UTM LINK IN MESSAGE:', href);
+                }
+            });
+        }
+    }
+    // Always check for links regardless of text content
+    checkForLinks();
+}
+// Main observer function
+function observeMessages() {
+    console.log('🔧 Setting up message observer...');
+    // Initial check
+    checkForLinks();
+    const observer = new MutationObserver((mutations) => {
+        console.log('🔧 DOM mutation detected, mutations count:', mutations.length);
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const element = node;
+                        // Check if this is a message or contains messages
+                        const messages = element.querySelectorAll('[data-message-author-role="assistant"]');
+                        console.log('🔧 New assistant messages found:', messages.length);
+                        messages.forEach(processMessage);
+                        // Also check if the added node itself is a message
+                        if (element.matches('[data-message-author-role="assistant"]')) {
+                            console.log('🔧 Added node is an assistant message');
+                            processMessage(element);
+                        }
+                        // Check for any new links
+                        const newLinks = element.querySelectorAll('a[href]');
+                        if (newLinks.length > 0) {
+                            console.log('🔧 New links added:', newLinks.length);
+                            newLinks.forEach(link => {
+                                const href = link.href;
+                                if (href.includes('utm_source=chatgpt.com')) {
+                                    console.log('🚨 NEW UTM LINK DETECTED:', href);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        });
+        // Always do a full check after mutations
+        setTimeout(checkForLinks, 100);
+    });
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    console.log('🔧 Observer set up successfully');
+}
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observeMessages);
+}
+else {
+    observeMessages();
+}
+// Also run checks periodically
+setInterval(() => {
+    console.log('🔧 Periodic link check...');
+    checkForLinks();
+}, 5000);
+// Check if this page was reached via ChatGPT (has utm_source=chatgpt.com)
+function checkForChatGPTReferral() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const utmSource = urlParams.get('utm_source');
+    console.log('🔧 Checking URL parameters:', {
+        fullURL: window.location.href,
+        search: window.location.search,
+        utmSource: utmSource,
+        allParams: Object.fromEntries(urlParams.entries())
+    });
+    if (utmSource === 'chatgpt.com') {
+        console.log('🎯 CHATGPT REFERRAL DETECTED!');
+        console.log('🎯 This page was reached from ChatGPT');
+        // Check if we already have our referral parameter
+        const existingRef = urlParams.get('ref');
+        if (!existingRef) {
+            console.log('🔧 Adding referral parameter...');
+            // Add our referral parameter
+            const newRef = `${contentTestUser.username}_${Date.now()}`;
+            urlParams.set('ref', newRef);
+            // Create the new URL
+            const newUrl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?${urlParams.toString()}${window.location.hash}`;
+            console.log('🔄 URL modification:', {
+                original: window.location.href,
+                modified: newUrl,
+                referralParam: newRef
+            });
+            // Update the URL without reloading the page
+            window.history.replaceState({}, '', newUrl);
+            console.log('✅ URL updated successfully!');
+            console.log('✅ New URL:', window.location.href);
+            // Log attribution data
+            console.log('📊 Attribution Data:', {
+                user: contentTestUser.username,
+                wallet: contentTestUser.walletAddress,
+                source: 'chatgpt.com',
+                destination: window.location.hostname,
+                timestamp: new Date().toISOString(),
+                referralId: newRef
+            });
+            // Send attribution data to background script (for future API calls)
+            chrome.runtime.sendMessage({
+                type: 'ATTRIBUTION_DETECTED',
+                data: {
+                    user: contentTestUser.username,
+                    wallet: contentTestUser.walletAddress,
+                    source: 'chatgpt.com',
+                    destination: window.location.hostname,
+                    originalUrl: window.location.href.replace(`&ref=${newRef}`, '').replace(`?ref=${newRef}`, ''),
+                    modifiedUrl: window.location.href,
+                    referralId: newRef,
+                    timestamp: new Date().toISOString()
+                }
+            }).catch(err => console.log('🔧 Background script message failed:', err));
+        }
+        else {
+            console.log('🔧 Referral parameter already exists:', existingRef);
+        }
+        return true;
+    }
+    else {
+        console.log('🔧 No ChatGPT referral detected');
+        if (utmSource) {
+            console.log('🔧 Other UTM source found:', utmSource);
+        }
+        return false;
+    }
+}
+// Function to monitor for dynamic URL changes (for SPAs)
+function setupURLMonitoring() {
+    let lastUrl = window.location.href;
+    const checkURLChange = () => {
+        const currentUrl = window.location.href;
+        if (currentUrl !== lastUrl) {
+            console.log('🔧 URL changed:', { from: lastUrl, to: currentUrl });
+            lastUrl = currentUrl;
+            // Re-check for ChatGPT referral on URL change
+            setTimeout(checkForChatGPTReferral, 100);
+        }
+    };
+    // Monitor for URL changes in SPAs
+    const observer = new MutationObserver(checkURLChange);
+    observer.observe(document.body, { childList: true, subtree: true });
+    // Also listen for popstate events
+    window.addEventListener('popstate', checkURLChange);
+    console.log('🔧 URL monitoring setup complete');
+}
+// Function to check if we're on a relevant page (not internal browser pages)
+function isRelevantPage() {
+    const url = window.location.href;
+    const hostname = window.location.hostname;
+    // Skip internal browser pages, extensions, and localhost during development
+    const skipPatterns = [
+        'chrome://',
+        'chrome-extension://',
+        'moz-extension://',
+        'about:',
+        'file://',
+        'localhost',
+        '127.0.0.1'
+    ];
+    const shouldSkip = skipPatterns.some(pattern => url.startsWith(pattern) || hostname.includes('localhost'));
+    if (shouldSkip) {
+        console.log('🔧 Skipping internal/development page');
+        return false;
+    }
+    return true;
+}
+// Main initialization function
+function initialize() {
+    console.log('🔧 Initializing referral extension...');
+    if (!isRelevantPage()) {
+        return;
+    }
+    console.log('🔧 Running on relevant page:', window.location.hostname);
+    // Check for ChatGPT referral immediately
+    const hasChatGPTReferral = checkForChatGPTReferral();
+    if (hasChatGPTReferral) {
+        console.log('🎯 ChatGPT referral page detected!');
+    }
+    else {
+        console.log('🔧 Regular page - no ChatGPT referral detected');
+    }
+}
+// Run initialization
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+}
+else {
+    initialize();
+}
+// Also run on window load to catch any late-loading content
+window.addEventListener('load', () => {
+    console.log('🔧 Window loaded, re-checking for referrals...');
+    setTimeout(checkForChatGPTReferral, 500);
+});
+console.log('🔧 Content script setup complete');
+
+/******/ })()
+;
+//# sourceMappingURL=content.js.map
