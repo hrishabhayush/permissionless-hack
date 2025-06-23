@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:shoes": "vite --mode shoes",
-    "dev:bags": "vite --mode bags",
-    "dev:glasses": "vite --mode glasses",
-    "dev:shoes-bags": "vite --mode shoes-bags",
-    "dev:shoes-glasses": "vite --mode shoes-glasses",
+    "dev:web1": "vite --mode shoes",
+    "dev:web2": "vite --mode bags",
+    "dev:web3": "vite --mode glasses",
+    "dev:web4": "vite --mode shoes-bags",
+    "dev:web5": "vite --mode shoes-glasses",
     "build": "tsc -b && vite build",
     "build:web1": "tsc -b && vite build --mode shoes",
     "build:web2": "tsc -b && vite build --mode bags",
@@ -22,7 +22,9 @@
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^6.21.0"
+    "react-router-dom": "^6.21.0",
+    "lucide-react": "^0.522.0"
+
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",

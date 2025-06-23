@@ -23,7 +23,8 @@
     "referrals:build": "pnpm --filter referrals build",
     "db:generate": "pnpm --filter database generate",
     "db:migrate": "pnpm --filter database migrate",
-    "db:studio": "pnpm --filter database studio"
+    "db:studio": "pnpm --filter database studio",
+    "lucide-react": "^0.522.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

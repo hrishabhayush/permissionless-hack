@@ -10,25 +10,16 @@ const SendPaymentSchema = z.object({
 });
 
 const RequityPaymentSchema = z.object({
-  requityId: z.number()
+  requityId: z.string().min(32).max(44), // Now accepts Solana/Ethereum address
+  sourcesAddresses: z.array(z.string().min(32).max(44)).min(1).max(10) // Array of addresses to send to
 });
 
 const CheckBalanceSchema = z.object({
   walletAddress: z.string().min(32).max(44)
 });
 
-// Hardcoded user mapping for demo purposes
-const USER_MAPPINGS = new Map<number, {
-  recipientAddress: string;
-  amount: number;
-  memo: string;
-}>([
-  [12345, {
-    recipientAddress: "TRmpNVZEhNr5DawcGF4HfY8bppTazRwVj6zzL3ZZjNG",
-    amount: 0.01,
-    memo: "Referral payout for user 12345"
-  }]
-]);
+// Fixed amount to send to each source address (in PYUSD)
+const PAYOUT_AMOUNT_PER_SOURCE = 0.01;
 
 export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInstance) => {
   // Lazy initialization of payment service
@@ -74,7 +65,8 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
           success: false,
           error: 'Request body is required',
           example: {
-            requityId: 12345
+            requityId: "user_solana_or_ethereum_address",
+            sourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y", "PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F"]
           }
         });
         return;
@@ -82,38 +74,46 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       
       const body = RequityPaymentSchema.parse(request.body);
       
-      // Look up user mapping
-      const userMapping = USER_MAPPINGS.get(body.requityId);
-      if (!userMapping) {
-        reply.status(404).send({
-          success: false,
-          error: `User mapping not found for requityId: ${body.requityId}`,
-          availableUsers: Array.from(USER_MAPPINGS.keys())
-        });
-        return;
-      }
-      
-      fastify.log.info(`Processing payment for requityId ${body.requityId}: ${userMapping.amount} PYUSD to ${userMapping.recipientAddress}`);
+      fastify.log.info(`Processing payments for requityId ${body.requityId}: sending ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD to ${body.sourcesAddresses.length} source addresses`);
       
       const service = getPaymentService();
-      const signature = await service.sendMicropayment(
-        userMapping.recipientAddress, 
-        userMapping.amount
-      );
+      const results: PaymentResult[] = [];
       
-      const result: PaymentResult = {
-        signature,
-        amount: userMapping.amount,
-        recipient: userMapping.recipientAddress,
-        timestamp: Date.now()
-      };
+      // Send the same amount to all source addresses
+      for (const sourceAddress of body.sourcesAddresses) {
+        try {
+          const signature = await service.sendMicropayment(
+            sourceAddress, 
+            PAYOUT_AMOUNT_PER_SOURCE
+          );
+          
+          const result: PaymentResult = {
+            signature,
+            amount: PAYOUT_AMOUNT_PER_SOURCE,
+            recipient: sourceAddress,
+            timestamp: Date.now()
+          };
+          
+          results.push(result);
+          fastify.log.info(`Sent ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD to source: ${sourceAddress}`);
+          
+        } catch (error) {
+          fastify.log.error(`Failed to send payment to ${sourceAddress}:`, error);
+          // Continue with other recipients even if one fails
+        }
+      }
+      
+      const totalSent = results.reduce((sum, r) => sum + r.amount, 0);
       
       reply.status(200).send({
         success: true,
         data: {
-          ...result,
           requityId: body.requityId,
-          memo: userMapping.memo
+          results,
+          totalSent,
+          successfulTransfers: results.length,
+          totalSources: body.sourcesAddresses.length,
+          amountPerSource: PAYOUT_AMOUNT_PER_SOURCE
         }
       });
       
@@ -132,7 +132,8 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
           error: 'Validation failed',
           details: validationErrors,
           example: {
-            requityId: 12345
+            requityId: "user_solana_or_ethereum_address",
+            sourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y", "PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F"]
           }
         });
         return;
