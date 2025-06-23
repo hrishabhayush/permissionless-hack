@@ -45,6 +45,19 @@ const paymentRoutes = async (fastify) => {
     // Send micropayment endpoint
     fastify.post('/send', async (request, reply) => {
         try {
+            // Check if request body exists
+            if (!request.body) {
+                reply.status(400).send({
+                    success: false,
+                    error: 'Request body is required',
+                    example: {
+                        recipientAddress: "TRmpNVZEhNr5DawcGF4HfY8bppTazRwVj6zzL3ZZjNG",
+                        amount: 0.01,
+                        memo: "optional memo"
+                    }
+                });
+                return;
+            }
             const body = SendPaymentSchema.parse(request.body);
             fastify.log.info(`Sending ${body.amount} PYUSD to ${body.recipientAddress}`);
             const service = getPaymentService();
@@ -62,6 +75,24 @@ const paymentRoutes = async (fastify) => {
         }
         catch (error) {
             fastify.log.error('Payment error:', error);
+            // Handle Zod validation errors
+            if (error instanceof zod_1.ZodError) {
+                const validationErrors = error.errors.map(err => ({
+                    field: err.path.join('.') || 'root',
+                    message: err.message
+                }));
+                reply.status(400).send({
+                    success: false,
+                    error: 'Validation failed',
+                    details: validationErrors,
+                    example: {
+                        recipientAddress: "TRmpNVZEhNr5DawcGF4HfY8bppTazRwVj6zzL3ZZjNG",
+                        amount: 0.01,
+                        memo: "optional memo"
+                    }
+                });
+                return;
+            }
             reply.status(500).send({
                 success: false,
                 error: error instanceof Error ? error.message : 'Payment failed'
@@ -157,6 +188,35 @@ const paymentRoutes = async (fastify) => {
         }
         catch (error) {
             fastify.log.error('Split payment error:', error);
+            // Handle Zod validation errors
+            if (error instanceof zod_1.ZodError) {
+                const validationErrors = error.errors.map(err => ({
+                    field: err.path.join('.') || 'root',
+                    message: err.message
+                }));
+                reply.status(400).send({
+                    success: false,
+                    error: 'Validation failed',
+                    details: validationErrors,
+                    example: {
+                        recipients: [
+                            {
+                                address: "TRmpNVZEhNr5DawcGF4HfY8bppTazRwVj6zzL3ZZjNG",
+                                amount: 0.06,
+                                role: "creator"
+                            },
+                            {
+                                address: "user_wallet_address",
+                                amount: 0.02,
+                                role: "user"
+                            }
+                        ],
+                        totalAmount: 0.08,
+                        referralId: "optional_tracking_id"
+                    }
+                });
+                return;
+            }
             reply.status(500).send({
                 success: false,
                 error: error instanceof Error ? error.message : 'Split payment failed'

@@ -14,7 +14,7 @@ const payments_1 = require("./routes/payments");
 // Debug environment loading
 console.log('🔍 Environment Debug:');
 console.log(`📁 Current directory: ${process.cwd()}`);
-console.log(`🌐 PORT from process.env: ${process.env.PORT}`);
+console.log(`🌐 SERVER_PORT from process.env: ${process.env.SERVER_PORT}`);
 console.log(`🏠 HOST from process.env: ${process.env.HOST}`);
 console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
 const fastify = (0, fastify_1.default)({
@@ -38,7 +38,7 @@ async function main() {
             return { status: 'ok', timestamp: new Date().toISOString() };
         });
         // Start server
-        const port = parseInt(process.env.PORT || '3001');
+        const port = parseInt(process.env.SERVER_PORT || '3001');
         const host = process.env.HOST || '0.0.0.0';
         await fastify.listen({ port, host });
         console.log(`🚀 API Server running on http://${host}:${port}`);
