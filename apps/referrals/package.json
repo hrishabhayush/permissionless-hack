@@ -5,7 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:shoes": "vite --mode shoes",
+    "dev:bags": "vite --mode bags",
+    "dev:glasses": "vite --mode glasses",
+    "dev:shoes-bags": "vite --mode shoes-bags",
+    "dev:shoes-glasses": "vite --mode shoes-glasses",
     "build": "tsc -b && vite build",
+    "build:web1": "tsc -b && vite build --mode shoes",
+    "build:web2": "tsc -b && vite build --mode bags",
+    "build:web3": "tsc -b && vite build --mode glasses",
+    "build:web4": "tsc -b && vite build --mode shoes-bags",
+    "build:web5": "tsc -b && vite build --mode shoes-glasses",
     "lint": "eslint .",
     "preview": "vite preview"
   },

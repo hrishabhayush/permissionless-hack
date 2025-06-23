@@ -5,11 +5,11 @@ const ShoesGlassesPage = () => {
     // Update the meta tag for this page
     const existingMeta = document.querySelector('meta[name="referral-bridge-wallet"]')
     if (existingMeta) {
-      existingMeta.setAttribute('content', 'solana:4Tqqk9BGFhEXZEETHDbM2TSqaQqED3yXH9rwwHTv4Sus')
+      existingMeta.setAttribute('content', 'solana:PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F')
     } else {
       const meta = document.createElement('meta')
       meta.name = 'referral-bridge-wallet'
-      meta.content = 'solana:4Tqqk9BGFhEXZEETHDbM2TSqaQqED3yXH9rwwHTv4Sus'
+      meta.content = 'solana:PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F'
       document.head.appendChild(meta)
     }
   }, [])

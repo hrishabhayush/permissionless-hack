@@ -108,7 +108,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Function to generate referral parameter
 function generateReferralParam(userId: string): string {
   // In a real implementation, this would be more sophisticated
-  return `ref=${userId}_${Date.now()}`;
+  return `ref=${requityId}_${12345}`;
 }
 
 // Debug: Log all web requests to see what we're intercepting
