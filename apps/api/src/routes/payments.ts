@@ -10,9 +10,17 @@ const SendPaymentSchema = z.object({
 });
 
 const RequityPaymentSchema = z.object({
-  requityId: z.string().min(32).max(44), // Now accepts Solana/Ethereum address
-  sourcesAddresses: z.array(z.string().min(32).max(44)).min(1).max(10) // Array of addresses to send to
-});
+  solRequityId: z.string().min(32).max(44).optional(),
+  solSourcesAddresses: z.array(z.string().min(32).max(44)).min(1).max(10).optional(),
+  ethRequityId: z.string().startsWith('0x').length(42).optional(),
+  ethSourcesAddresses: z.array(z.string().startsWith('0x').length(42)).min(1).max(10).optional()
+}).refine(data => 
+  (data.solRequityId && data.solSourcesAddresses) || (data.ethRequityId && data.ethSourcesAddresses),
+  {
+    message: "Either Solana (solRequityId, solSourcesAddresses) or Ethereum (ethRequityId, ethSourcesAddresses) fields must be provided.",
+    path: ["requityPayment"],
+  }
+);
 
 const CheckBalanceSchema = z.object({
   walletAddress: z.string().min(32).max(44)
@@ -28,7 +36,7 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
   const getPaymentService = (): Token2022MicropaymentDemo => {
     if (!paymentService) {
       try {
-        paymentService = new Token2022MicropaymentDemo();
+        paymentService = new Token2022MicropaymentDemo(true);
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         
@@ -65,8 +73,10 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
           success: false,
           error: 'Request body is required',
           example: {
-            requityId: "user_solana_or_ethereum_address",
-            sourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y", "PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F"]
+            solRequityId: "user_solana_address",
+            solSourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y"],
+            ethRequityId: "0x...",
+            ethSourcesAddresses: ["0x..."]
           }
         });
         return;
@@ -76,39 +86,57 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       
       // Transaction requested log
       console.log('Transaction requested:');
-      console.log(` requityId: ${body.requityId}`);
-      console.log(` wallets: ${body.sourcesAddresses.join(', ')}`);
+      if (body.solRequityId) {
+        console.log(` solRequityId: ${body.solRequityId}`);
+        console.log(` solWallets: ${body.solSourcesAddresses?.join(', ')}`);
+      }
+      if (body.ethRequityId) {
+        console.log(` ethRequityId: ${body.ethRequityId}`);
+        console.log(` ethWallets: ${body.ethSourcesAddresses?.join(', ')}`);
+      }
       
       const service = getPaymentService();
       const results: PaymentResult[] = [];
       
-      // Send the same amount to all source addresses
-      for (const sourceAddress of body.sourcesAddresses) {
+      // Combine all Solana recipients and remove duplicates
+      const allSolanaRecipients = new Set<string>();
+      if (body.solRequityId) {
+        allSolanaRecipients.add(body.solRequityId);
+      }
+      body.solSourcesAddresses?.forEach(address => allSolanaRecipients.add(address));
+
+      // Send the same amount to all unique Solana recipients
+      for (const recipientAddress of allSolanaRecipients) {
         try {
           const signature = await service.sendMicropayment(
-            sourceAddress, 
+            recipientAddress,
             PAYOUT_AMOUNT_PER_SOURCE
           );
-          
+
           const result: PaymentResult = {
             signature,
             amount: PAYOUT_AMOUNT_PER_SOURCE,
-            recipient: sourceAddress,
+            recipient: recipientAddress,
             timestamp: Date.now()
           };
-          
+
           results.push(result);
-          
+
           // Status of solana transaction
           console.log('Status of solana transaction');
-          console.log(`Transaction passed: ${signature ? 'SUCCESS' : 'FAILED'}`);
-          
+          console.log(`Transaction passed for ${recipientAddress}: ${signature ? 'SUCCESS' : 'FAILED'}`);
+
         } catch (error) {
           // Status of solana transaction
           console.log('Status of solana transaction');
-          console.log(`Transaction passed: FAILED`);
+          console.log(`Transaction passed for ${recipientAddress}: FAILED`);
           // Continue with other recipients even if one fails
         }
+      }
+
+      if (body.ethSourcesAddresses) {
+        // TODO: Implement Ethereum payment logic
+        console.log(`Processing ${body.ethSourcesAddresses.length} Ethereum addresses (payment logic not implemented).`);
       }
       
       const totalSent = results.reduce((sum, r) => sum + r.amount, 0);
@@ -116,11 +144,11 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       reply.status(200).send({
         success: true,
         data: {
-          requityId: body.requityId,
+          requityId: body.solRequityId || body.ethRequityId,
           results,
           totalSent,
           successfulTransfers: results.length,
-          totalSources: body.sourcesAddresses.length,
+          totalSources: allSolanaRecipients.size + (body.ethSourcesAddresses?.length || 0),
           amountPerSource: PAYOUT_AMOUNT_PER_SOURCE
         }
       });
@@ -138,8 +166,10 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
           error: 'Validation failed',
           details: validationErrors,
           example: {
-            requityId: "user_solana_or_ethereum_address",
-            sourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y", "PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F"]
+            solRequityId: "user_solana_address",
+            solSourcesAddresses: ["3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y"],
+            ethRequityId: "0x...",
+            ethSourcesAddresses: ["0x..."]
           }
         });
         return;

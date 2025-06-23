@@ -24,8 +24,10 @@ export class Token2022MicropaymentDemo {
   private connection: Connection;
   private payer: Keypair;
   private pyusdMint: PublicKey;
+  private silent: boolean;
 
-  constructor() {
+  constructor(silent: boolean = false) {
+    this.silent = silent;
     const rpcUrl = CONFIG.NETWORK === 'devnet' ? CONFIG.DEVNET_RPC : CONFIG.MAINNET_RPC;
     this.connection = new Connection(rpcUrl, 'confirmed');
 
@@ -38,19 +40,21 @@ export class Token2022MicropaymentDemo {
       CONFIG.NETWORK === 'devnet' ? CONFIG.PYUSD_DEVNET : CONFIG.PYUSD_MAINNET
     );
 
-    console.log(`🔧 Using Token-2022 Program: ${TOKEN_2022_PROGRAM_ID.toString()}`);
-    console.log(`💰 Wallet: ${this.payer.publicKey.toString()}`);
-    console.log(`🪙 PYUSD Mint: ${this.pyusdMint.toString()}`);
-    console.log(`🌐 Network: ${CONFIG.NETWORK}`);
+    if (!this.silent) {
+      console.log(`🔧 Using Token-2022 Program: ${TOKEN_2022_PROGRAM_ID.toString()}`);
+      console.log(`💰 Wallet: ${this.payer.publicKey.toString()}`);
+      console.log(`🪙 PYUSD Mint: ${this.pyusdMint.toString()}`);
+      console.log(`🌐 Network: ${CONFIG.NETWORK}`);
+    }
   }
 
   async checkBalances() {
     try {
-      console.log('\n🔍 Checking Token-2022 PYUSD Balance...');
+      if (!this.silent) console.log('\n🔍 Checking Token-2022 PYUSD Balance...');
 
       // Check SOL balance
       const solBalance = await this.connection.getBalance(this.payer.publicKey);
-      console.log(`💎 SOL Balance: ${solBalance / 1e9} SOL`);
+      if (!this.silent) console.log(`💎 SOL Balance: ${solBalance / 1e9} SOL`);
 
       // Get Token-2022 accounts
       const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(
@@ -58,7 +62,7 @@ export class Token2022MicropaymentDemo {
         { programId: TOKEN_2022_PROGRAM_ID }
       );
 
-      console.log(`📊 Found ${tokenAccounts.value.length} Token-2022 account(s)`);
+      if (!this.silent) console.log(`📊 Found ${tokenAccounts.value.length} Token-2022 account(s)`);
 
       let pyusdBalance = 0;
       for (const account of tokenAccounts.value) {
@@ -68,12 +72,14 @@ export class Token2022MicropaymentDemo {
 
         if (mint === this.pyusdMint.toString()) {
           pyusdBalance = balance;
-          console.log(`💰 PYUSD Balance: ${balance} PYUSD`);
-          console.log(`🏦 Token Account: ${account.pubkey.toString()}`);
+          if (!this.silent) {
+            console.log(`💰 PYUSD Balance: ${balance} PYUSD`);
+            console.log(`🏦 Token Account: ${account.pubkey.toString()}`);
+          }
         }
       }
 
-      if (pyusdBalance === 0) {
+      if (pyusdBalance === 0 && !this.silent) {
         console.log('❌ No PYUSD found. Please get PYUSD from a faucet first.');
       }
 
@@ -87,9 +93,11 @@ export class Token2022MicropaymentDemo {
 
   async sendMicropayment(recipientAddress: string, amount: number = CONFIG.MICROPAYMENT_AMOUNT) {
     try {
-      console.log('\n🚀 Sending Token-2022 PYUSD Micropayment...');
-      console.log(`💸 Amount: ${amount} PYUSD`);
-      console.log(`📬 Recipient: ${recipientAddress}`);
+      if (!this.silent) {
+        console.log('\n🚀 Sending Token-2022 PYUSD Micropayment...');
+        console.log(`💸 Amount: ${amount} PYUSD`);
+        console.log(`📬 Recipient: ${recipientAddress}`);
+      }
 
       const recipient = new PublicKey(recipientAddress);
 
@@ -111,8 +119,10 @@ export class Token2022MicropaymentDemo {
         ASSOCIATED_TOKEN_PROGRAM_ID
       );
 
-      console.log(`🏦 Sender Token Account: ${senderTokenAccount.toString()}`);
-      console.log(`🏦 Recipient Token Account: ${recipientTokenAccount.toString()}`);
+      if (!this.silent) {
+        console.log(`🏦 Sender Token Account: ${senderTokenAccount.toString()}`);
+        console.log(`🏦 Recipient Token Account: ${recipientTokenAccount.toString()}`);
+      }
 
       // Create transaction
       const transaction = new Transaction();
@@ -120,9 +130,9 @@ export class Token2022MicropaymentDemo {
       // Check if recipient token account exists
       try {
         await getAccount(this.connection, recipientTokenAccount, 'confirmed', TOKEN_2022_PROGRAM_ID);
-        console.log('✅ Recipient token account exists');
+        if (!this.silent) console.log('✅ Recipient token account exists');
       } catch (error) {
-        console.log('📝 Creating recipient token account...');
+        if (!this.silent) console.log('📝 Creating recipient token account...');
         // Add instruction to create recipient token account
         transaction.add(
           createAssociatedTokenAccountInstruction(
@@ -154,13 +164,15 @@ export class Token2022MicropaymentDemo {
       );
 
       // Get fresh blockhash with finalized commitment for better reliability
-      console.log('⏱️ Getting fresh blockhash...');
+      if (!this.silent) console.log('⏱️ Getting fresh blockhash...');
       const { blockhash, lastValidBlockHeight } = await this.connection.getLatestBlockhash('finalized');
       transaction.recentBlockhash = blockhash;
       transaction.feePayer = this.payer.publicKey;
 
-      console.log(`🔗 Block height: ${lastValidBlockHeight}`);
-      console.log('📡 Sending transaction with optimized settings...');
+      if (!this.silent) {
+        console.log(`🔗 Block height: ${lastValidBlockHeight}`);
+        console.log('📡 Sending transaction with optimized settings...');
+      }
 
       // Use faster commitment and shorter timeout
       const signature = await this.connection.sendTransaction(
@@ -173,8 +185,10 @@ export class Token2022MicropaymentDemo {
         }
       );
 
-      console.log(`🔗 Transaction submitted: ${signature}`);
-      console.log('⏳ Confirming transaction...');
+      if (!this.silent) {
+        console.log(`🔗 Transaction submitted: ${signature}`);
+        console.log('⏳ Confirming transaction...');
+      }
 
       // Confirm with processed commitment for speed
       const confirmation = await this.connection.confirmTransaction(
@@ -190,9 +204,11 @@ export class Token2022MicropaymentDemo {
         throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
       }
 
-      console.log('✅ Micropayment sent successfully!');
-      console.log(`🔗 Transaction: ${signature}`);
-      console.log(`🌐 Explorer: https://explorer.solana.com/tx/${signature}?cluster=${CONFIG.NETWORK}`);
+      if (!this.silent) {
+        console.log('✅ Micropayment sent successfully!');
+        console.log(`🔗 Transaction: ${signature}`);
+        console.log(`🌐 Explorer: https://explorer.solana.com/tx/${signature}?cluster=${CONFIG.NETWORK}`);
+      }
 
       return signature;
 
@@ -201,9 +217,11 @@ export class Token2022MicropaymentDemo {
 
       // Provide specific suggestions based on error type
       if ((error as any)?.message?.includes('expired') || (error as any)?.message?.includes('block height')) {
-        console.log('\n💡 Block height expired - this is common on devnet');
-        console.log('   🔄 The transaction might still succeed, check the explorer');
-        console.log('   ⚡ Try again - devnet can be slow sometimes');
+        if (!this.silent) {
+          console.log('\n💡 Block height expired - this is common on devnet');
+          console.log('   🔄 The transaction might still succeed, check the explorer');
+          console.log('   ⚡ Try again - devnet can be slow sometimes');
+        }
       }
 
       throw error;
@@ -212,7 +230,7 @@ export class Token2022MicropaymentDemo {
 
   async checkTransactionCost() {
     try {
-      console.log('\n💰 Estimating Token-2022 Transaction Cost...');
+      if (!this.silent) console.log('\n💰 Estimating Token-2022 Transaction Cost...');
 
       // Create a sample transaction to estimate fees
       const recipient = this.payer.publicKey; // Use self as recipient for estimation
@@ -262,19 +280,21 @@ export class Token2022MicropaymentDemo {
       const feeInSOL = estimatedFee / 1e9;
       const feeInUSD = feeInSOL * 100; // Rough SOL price estimate
 
-      console.log(`⛽ Estimated fee: ${estimatedFee} lamports (${feeInSOL.toFixed(6)} SOL)`);
-      console.log(`💵 Estimated USD cost: ~$${feeInUSD.toFixed(4)}`);
+      if (!this.silent) {
+        console.log(`⛽ Estimated fee: ${estimatedFee} lamports (${feeInSOL.toFixed(6)} SOL)`);
+        console.log(`💵 Estimated USD cost: ~$${feeInUSD.toFixed(4)}`);
+      }
 
       // Calculate percentage of micropayment
       const percentageOfPayment = (feeInUSD / CONFIG.MICROPAYMENT_AMOUNT) * 100;
-      console.log(`📊 Fee as % of ${CONFIG.MICROPAYMENT_AMOUNT} PYUSD payment: ${percentageOfPayment.toFixed(2)}%`);
+      if (!this.silent) console.log(`📊 Fee as % of ${CONFIG.MICROPAYMENT_AMOUNT} PYUSD payment: ${percentageOfPayment.toFixed(2)}%`);
 
       if (percentageOfPayment < 1) {
-        console.log('✅ Excellent! Very cost-effective for micropayments');
+        if (!this.silent) console.log('✅ Excellent! Very cost-effective for micropayments');
       } else if (percentageOfPayment < 5) {
-        console.log('✅ Good! Reasonable cost for micropayments');
+        if (!this.silent) console.log('✅ Good! Reasonable cost for micropayments');
       } else {
-        console.log('⚠️ High fee percentage - consider larger payment amounts');
+        if (!this.silent) console.log('⚠️ High fee percentage - consider larger payment amounts');
       }
 
       return {
