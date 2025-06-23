@@ -19,6 +19,8 @@
     "api:start": "pnpm --filter api start",
     "store:dev": "pnpm --filter store dev",
     "store:build": "pnpm --filter store build",
+    "referrals:dev": "pnpm --filter referrals dev",
+    "referrals:build": "pnpm --filter referrals build",
     "db:generate": "pnpm --filter database generate",
     "db:migrate": "pnpm --filter database migrate",
     "db:studio": "pnpm --filter database studio"

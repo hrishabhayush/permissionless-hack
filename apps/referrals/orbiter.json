@@ -1,0 +1,6 @@
+{
+  "domain": "blogs",
+  "buildCommand": "npm run build",
+  "buildDir": "dist",
+  "siteId": "d3b8fcb4-bb8a-4358-a675-82fb90de177b"
+}
