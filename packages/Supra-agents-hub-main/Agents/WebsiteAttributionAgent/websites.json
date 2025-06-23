@@ -8,5 +8,15 @@
     "registrationTimestamp": 1750646466160,
     "totalConversions": 6,
     "totalEarnings": 0.6
+  },
+  "b23e2f0a3073c67e": {
+    "domain": "supra.com",
+    "owner": "",
+    "supraPubKey": "",
+    "verificationToken": "520bf5f82e70433a6b40da4211e3d6f7a75ce162c130f56659489e919daffda4",
+    "isVerified": false,
+    "registrationTimestamp": 1750704894318,
+    "totalConversions": 1,
+    "totalEarnings": 0
   }
 }
