@@ -210,33 +210,6 @@ if (document.readyState === 'loading') {
   observeMessages();
 }
 
-// Enhanced periodic checks including wallet tracking
-setInterval(() => {
-  console.log('🔧 Periodic check...');
-  checkForLinks();
-  
-  // Check for wallet connections on this site
-  const currentWalletConnection = walletTracker.getConnectionForWebsite(window.location.hostname);
-  if (currentWalletConnection) {
-    console.log('💰 Wallet connected to this site:', {
-      address: currentWalletConnection.walletAddress,
-      type: currentWalletConnection.walletType,
-      method: currentWalletConnection.connectionMethod,
-      connected: new Date(currentWalletConnection.timestamp).toLocaleString()
-    });
-  }
-  
-  // Show recent ChatGPT activity
-  const recentSessions = walletTracker.getRecentChatGPTSessions(1); // Last hour
-  if (recentSessions.length > 0) {
-    console.log('🤖 Recent ChatGPT activity:', {
-      sessions: recentSessions.length,
-      totalSources: recentSessions.flatMap(s => s.sources).length,
-      uniqueSources: [...new Set(recentSessions.flatMap(s => s.sources))].length
-    });
-  }
-}, 10000); // Check every 10 seconds
-
 // Check if this page was reached via ChatGPT (has utm_source=chatgpt.com)
 function checkForChatGPTReferral() {
   const urlParams = new URLSearchParams(window.location.search);
@@ -331,31 +304,6 @@ function checkForChatGPTReferral() {
   }
 }
 
-// Function to monitor for dynamic URL changes (for SPAs)
-function setupURLMonitoring() {
-  let lastUrl = window.location.href;
-  
-  const checkURLChange = () => {
-    const currentUrl = window.location.href;
-    if (currentUrl !== lastUrl) {
-      console.log('🔧 URL changed:', { from: lastUrl, to: currentUrl });
-      lastUrl = currentUrl;
-      
-      // Re-check for ChatGPT referral on URL change
-      setTimeout(checkForChatGPTReferral, 100);
-    }
-  };
-  
-  // Monitor for URL changes in SPAs
-  const observer = new MutationObserver(checkURLChange);
-  observer.observe(document.body, { childList: true, subtree: true });
-  
-  // Also listen for popstate events
-  window.addEventListener('popstate', checkURLChange);
-  
-  console.log('🔧 URL monitoring setup complete');
-}
-
 // Function to check if we're on a relevant page (not internal browser pages)
 function isRelevantPage(): boolean {
   const url = window.location.href;
@@ -382,41 +330,6 @@ function isRelevantPage(): boolean {
   return true;
 }
 
-// Function to display comprehensive wallet tracking status
-function displayWalletTrackingStatus() {
-  console.log('💰 ========== WALLET TRACKING STATUS ==========');
-  
-  // Current site wallet connection
-  const currentConnection = walletTracker.getConnectionForWebsite(window.location.hostname);
-  if (currentConnection) {
-    console.log('✅ Wallet connected to current site:', {
-      address: currentConnection.walletAddress,
-      type: currentConnection.walletType,
-      method: currentConnection.connectionMethod,
-      when: new Date(currentConnection.timestamp).toLocaleString()
-    });
-  } else {
-    console.log('❌ No wallet connection found for current site');
-  }
-  
-  // Recent ChatGPT sessions
-  const recentSessions = walletTracker.getRecentChatGPTSessions(24);
-  console.log(`🤖 Recent ChatGPT sessions (24h): ${recentSessions.length}`);
-  
-  if (recentSessions.length > 0) {
-    const allSources = recentSessions.flatMap(session => session.sources);
-    const uniqueSources = [...new Set(allSources)];
-    
-    console.log('📊 ChatGPT source analysis:', {
-      totalSources: allSources.length,
-      uniqueSources: uniqueSources.length,
-      topSources: uniqueSources.slice(0, 5)
-    });
-  }
-  
-  console.log('💰 ============================================');
-}
-
 // Main initialization function
 function initialize() {
   console.log('🔧 Initializing referral extension...');
@@ -426,10 +339,7 @@ function initialize() {
   }
   
   console.log('🔧 Running on relevant page:', window.location.hostname);
-  
-  // Display wallet tracking status
-  setTimeout(displayWalletTrackingStatus, 2000); // Wait for wallet tracker to initialize
-  
+
   // Check for ChatGPT referral immediately
   const hasChatGPTReferral = checkForChatGPTReferral();
   
