@@ -8,13 +8,6 @@ import { paymentRoutes } from './routes/payments';
 // Load environment variables
 config();
 
-// Debug environment loading
-console.log('🔍 Environment Debug:');
-console.log(`📁 Current directory: ${process.cwd()}`);
-console.log(`🌐 SERVER_PORT from process.env: ${process.env.SERVER_PORT}`);
-console.log(`🏠 HOST from process.env: ${process.env.HOST}`);
-console.log(`🔧 NODE_ENV: ${process.env.NODE_ENV}`);
-
 const fastify = Fastify({
   logger: true
 });

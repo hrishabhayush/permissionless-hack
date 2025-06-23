@@ -74,7 +74,10 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       
       const body = RequityPaymentSchema.parse(request.body);
       
-      fastify.log.info(`Processing payments for requityId ${body.requityId}: sending ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD to ${body.sourcesAddresses.length} source addresses`);
+      // Transaction requested log
+      console.log('Transaction requested:');
+      console.log(` requityId: ${body.requityId}`);
+      console.log(` wallets: ${body.sourcesAddresses.join(', ')}`);
       
       const service = getPaymentService();
       const results: PaymentResult[] = [];
@@ -95,10 +98,15 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
           };
           
           results.push(result);
-          fastify.log.info(`Sent ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD to source: ${sourceAddress}`);
+          
+          // Status of solana transaction
+          console.log('Status of solana transaction');
+          console.log(`Transaction passed: ${signature ? 'SUCCESS' : 'FAILED'}`);
           
         } catch (error) {
-          fastify.log.error(`Failed to send payment to ${sourceAddress}:`, error);
+          // Status of solana transaction
+          console.log('Status of solana transaction');
+          console.log(`Transaction passed: FAILED`);
           // Continue with other recipients even if one fails
         }
       }
@@ -118,8 +126,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       });
       
     } catch (error) {
-      fastify.log.error('Requity payment error:', error);
-      
       // Handle Zod validation errors
       if (error instanceof ZodError) {
         const validationErrors = error.errors.map(err => ({
@@ -165,8 +171,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       
       const body = SendPaymentSchema.parse(request.body);
       
-      fastify.log.info(`Sending ${body.amount} PYUSD to ${body.recipientAddress}`);
-      
       const service = getPaymentService();
       const signature = await service.sendMicropayment(
         body.recipientAddress, 
@@ -186,8 +190,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       });
       
     } catch (error) {
-      fastify.log.error('Payment error:', error);
-      
       // Handle Zod validation errors
       if (error instanceof ZodError) {
         const validationErrors = error.errors.map(err => ({
@@ -227,8 +229,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       });
       
     } catch (error) {
-      fastify.log.error('Balance check error:', error);
-      
       reply.status(500).send({
         success: false,
         error: error instanceof Error ? error.message : 'Balance check failed'
@@ -248,8 +248,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       });
       
     } catch (error) {
-      fastify.log.error('Cost estimation error:', error);
-      
       reply.status(500).send({
         success: false,
         error: error instanceof Error ? error.message : 'Cost estimation failed'
@@ -281,8 +279,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
         });
       }
       
-      fastify.log.info(`Processing split payment for ${body.recipients.length} recipients`);
-      
       // Send payments to each recipient
       const results: PaymentResult[] = [];
       const service = getPaymentService();
@@ -301,10 +297,7 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
             timestamp: Date.now()
           });
           
-          fastify.log.info(`Sent ${recipient.amount} PYUSD to ${recipient.role}: ${recipient.address}`);
-          
         } catch (error) {
-          fastify.log.error(`Failed to send to ${recipient.address}:`, error);
           // Continue with other recipients even if one fails
         }
       }
@@ -320,8 +313,6 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       });
       
     } catch (error) {
-      fastify.log.error('Split payment error:', error);
-      
       // Handle Zod validation errors
       if (error instanceof ZodError) {
         const validationErrors = error.errors.map(err => ({
