@@ -34,10 +34,10 @@ const files = [
 const features = [
   {
     Icon: FileTextIcon,
-    name: "Payment integration for AI inference with one line of code",
+    name: "The Missing Payment Layer for the AI Economy",
     description: "We automatically pay your website if your content was used by AI.",
     href: "#",
-    cta: "Learn more",
+    cta: "",
     className: "col-span-4",
     background: (
       <Marquee
@@ -71,12 +71,12 @@ const features = [
   {
     Icon: BellIcon,
     name: "Notifications",
-    description: "Get notified when your resources are used.",
+    description: "Get notified when your resources are used and when you are paid.",
     href: "#",
-    cta: "Learn more",
+    cta: "",
     className: "col-span-2",
     background: (
-      <AnimatedListDemo className="absolute right-2 top-1 bottom-4 w-full scale-75 border-none transition-all duration-300 ease-out [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] group-hover:scale-90" />
+      <AnimatedListDemo className="absolute right-2 top-0 bottom-4 w-full scale-75 border-none transition-all duration-300 ease-out [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] group-hover:scale-90" />
     ),
   },
   {
@@ -84,7 +84,7 @@ const features = [
     name: "Integrated with current models",
     description: "Supports EVM and SOL networks.",
     href: "#",
-    cta: "Learn more",
+    cta: "",
     className: "col-span-2",
     background: (
       <AnimatedBeamMultipleOutputDemo className="absolute right-2 top-4 bottom-4 border-none transition-all duration-300 ease-out [mask-image:linear-gradient(to_top,transparent_10%,#000_100%)] group-hover:scale-105" />

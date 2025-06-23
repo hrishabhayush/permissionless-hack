@@ -3,16 +3,17 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import { BentoDemo } from '../components/BentoDemo';
-import { MarqueeDemo } from '../components/MarqueeDemo';
 import ParticlesBackground from '../components/ParticlesBackground';
+import { WebsiteAttributionTerminal } from '../components/Terminal';
+import { TweetInteractions } from '../components/Tweet';
 
 const Home: NextPage = () => {
   return (
     <div className="relative min-h-screen">
       <Head>
-        <title>ReferralBridge - Earn Revenue Share</title>
+        <h1>ReferralBridge - Earn Revenue Share</h1>
         <meta
-          content="ReferralBridge - Fair attribution for content creators with automated tracking"
+          content="Earn revenue share when AI crawls your website and there is a sale inference creating a market of embedded finance and AI."
           name="description"
         />
         <link href="/favicon.ico" rel="icon" />
@@ -32,20 +33,28 @@ const Home: NextPage = () => {
            <ConnectButton />
          </div>
          
-         <main className="h-screen flex flex-col justify-center p-4">
+         <main className="min-h-screen flex flex-col p-4 pt-20">
            <div className="max-w-7xl mx-auto w-full">
              <div className="text-center mb-8">
-               <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2">
-                 Welcome to Requity
+               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-2">
+                Requity
                </h1>
-               <p className="text-lg text-gray-600 dark:text-gray-300">
-                 Earn revenue share for your website sources whenever AI uses your content for sales inference
+               <p className="text-lg text-black-600 dark:text-gray-300">
+                 Generating revenue for websites with <b style={{ color: 'var(--rk-colors-accentColor)' }}>1 line of code</b>
                </p>
              </div>
              
-             <div className="flex-1">
+             <div className="mb-8">
                <BentoDemo />
              </div>
+           </div>
+           
+           <div className="w-full">
+             <WebsiteAttributionTerminal />
+           </div>
+           
+           <div className="w-full py-16">
+             <TweetInteractions />
            </div>
          </main>
        </div>
