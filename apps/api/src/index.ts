@@ -22,9 +22,17 @@ const fastify = Fastify({
 async function main() {
   try {
     // Register plugins
-    await fastify.register(helmet);
+    await fastify.register(helmet, {
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      contentSecurityPolicy: false
+    });
     await fastify.register(cors, {
-      origin: true // Configure properly for production
+      origin: true, // Allow all origins for demo
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+      credentials: false // Set to false for broader compatibility
     });
     await fastify.register(rateLimit, {
       max: 100,

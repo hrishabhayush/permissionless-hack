@@ -5,11 +5,11 @@ const BagsPage = () => {
     // Update the meta tag for this page
     const existingMeta = document.querySelector('meta[name="referral-bridge-wallet"]')
     if (existingMeta) {
-      existingMeta.setAttribute('content', 'solana:8NkDm5vKwZ3pY7jE4qR6sLm2nK9vB1cF7WuG8Hy3Tr4Q')
+      existingMeta.setAttribute('content', 'solana:3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y')
     } else {
       const meta = document.createElement('meta')
       meta.name = 'referral-bridge-wallet'
-      meta.content = 'solana:8NkDm5vKwZ3pY7jE4qR6sLm2nK9vB1cF7WuG8Hy3Tr4Q'
+      meta.content = 'solana:3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y'
       document.head.appendChild(meta)
     }
   }, [])

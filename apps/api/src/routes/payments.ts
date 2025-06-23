@@ -9,9 +9,26 @@ const SendPaymentSchema = z.object({
   memo: z.string().optional()
 });
 
+const RequityPaymentSchema = z.object({
+  requityId: z.number()
+});
+
 const CheckBalanceSchema = z.object({
   walletAddress: z.string().min(32).max(44)
 });
+
+// Hardcoded user mapping for demo purposes
+const USER_MAPPINGS = new Map<number, {
+  recipientAddress: string;
+  amount: number;
+  memo: string;
+}>([
+  [12345, {
+    recipientAddress: "TRmpNVZEhNr5DawcGF4HfY8bppTazRwVj6zzL3ZZjNG",
+    amount: 0.01,
+    memo: "Referral payout for user 12345"
+  }]
+]);
 
 export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInstance) => {
   // Lazy initialization of payment service
@@ -48,8 +65,88 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
     };
   });
 
-  // Send micropayment endpoint
+  // Requity user payment endpoint (called from mock store)
   fastify.post('/send', async (request, reply) => {
+    try {
+      // Check if request body exists
+      if (!request.body) {
+        reply.status(400).send({
+          success: false,
+          error: 'Request body is required',
+          example: {
+            requityId: 12345
+          }
+        });
+        return;
+      }
+      
+      const body = RequityPaymentSchema.parse(request.body);
+      
+      // Look up user mapping
+      const userMapping = USER_MAPPINGS.get(body.requityId);
+      if (!userMapping) {
+        reply.status(404).send({
+          success: false,
+          error: `User mapping not found for requityId: ${body.requityId}`,
+          availableUsers: Array.from(USER_MAPPINGS.keys())
+        });
+        return;
+      }
+      
+      fastify.log.info(`Processing payment for requityId ${body.requityId}: ${userMapping.amount} PYUSD to ${userMapping.recipientAddress}`);
+      
+      const service = getPaymentService();
+      const signature = await service.sendMicropayment(
+        userMapping.recipientAddress, 
+        userMapping.amount
+      );
+      
+      const result: PaymentResult = {
+        signature,
+        amount: userMapping.amount,
+        recipient: userMapping.recipientAddress,
+        timestamp: Date.now()
+      };
+      
+      reply.status(200).send({
+        success: true,
+        data: {
+          ...result,
+          requityId: body.requityId,
+          memo: userMapping.memo
+        }
+      });
+      
+    } catch (error) {
+      fastify.log.error('Requity payment error:', error);
+      
+      // Handle Zod validation errors
+      if (error instanceof ZodError) {
+        const validationErrors = error.errors.map(err => ({
+          field: err.path.join('.') || 'root',
+          message: err.message
+        }));
+        
+        reply.status(400).send({
+          success: false,
+          error: 'Validation failed',
+          details: validationErrors,
+          example: {
+            requityId: 12345
+          }
+        });
+        return;
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: error instanceof Error ? error.message : 'Payment failed'
+      });
+    }
+  });
+
+  // Send micropayment endpoint (direct payment)
+  fastify.post('/send-direct', async (request, reply) => {
     try {
       // Check if request body exists
       if (!request.body) {

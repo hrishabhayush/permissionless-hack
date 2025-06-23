@@ -60,6 +60,8 @@ function GlassesPage() {
   const [cart, setCart] = useState<{ id: number; name: string; price: number; image: string; }[]>([]);
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutComplete, setCheckoutComplete] = useState(false);
+  const [cashbackStatus, setCashbackStatus] = useState<'success' | 'error' | null>(null);
+  const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
 
   const addToCart = (product: { id: number; name: string; price: number; image: string; }) => {
     setCart([...cart, product]);
@@ -84,10 +86,44 @@ function GlassesPage() {
     );
   };
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    // Always complete the checkout first
     setCheckoutComplete(true);
     setCart([]);
     setShowCheckout(false);
+    
+    // Then try the referral payment in the background
+    try {
+      const response = await fetch('https://referral-production-6dc1.up.railway.app/api/payments/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ requityId: 12345 })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Cashback payment successful:', result);
+        setCashbackStatus('success');
+        // Extract transaction signature from the response
+        if (result.data && result.data.signature) {
+          setTransactionSignature(result.data.signature);
+        }
+      } else {
+        const errorText = await response.text();
+        try {
+          const errorData = JSON.parse(errorText);
+          console.error('Cashback payment failed:', errorData);
+        } catch {
+          console.error('Cashback payment failed:', errorText);
+        }
+        setCashbackStatus('error');
+      }
+    } catch (error) {
+      console.error('Cashback payment API error:', error);
+      setCashbackStatus('error');
+    }
   };
 
   if (checkoutComplete) {
@@ -105,9 +141,49 @@ function GlassesPage() {
           </div>
           <div className="bg-gray-50 rounded-xl p-4 mb-6">
             <p className="text-sm text-gray-600">Your order confirmation has been sent to your email</p>
+            
+            {/* Cashback Status */}
+            {cashbackStatus === 'success' && (
+              <div className="mt-3 p-2 bg-green-50 rounded-lg text-xs text-green-700">
+                <div className="flex items-center mb-1">
+                  <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Cashback payment successful
+                </div>
+                {transactionSignature && (
+                  <div className="flex items-center text-xs">
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    <a 
+                      href={`https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-green-600 hover:text-green-800 underline"
+                    >
+                      View on Solana Explorer
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {cashbackStatus === 'error' && (
+              <div className="mt-3 p-2 bg-red-50 rounded-lg flex items-center text-xs text-red-700">
+                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                Cashback payment failed
+              </div>
+            )}
           </div>
           <button
-            onClick={() => setCheckoutComplete(false)}
+            onClick={() => {
+              setCheckoutComplete(false);
+              setCashbackStatus(null);
+              setTransactionSignature(null);
+            }}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             Continue Shopping
