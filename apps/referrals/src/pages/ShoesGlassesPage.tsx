@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import LatestTransactions from "../LatestTransactions.tsx";
 
 const ShoesGlassesPage = () => {
   useEffect(() => {
@@ -16,6 +17,7 @@ const ShoesGlassesPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <LatestTransactions address={"PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F"} />
       <article className="prose prose-lg max-w-none">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
