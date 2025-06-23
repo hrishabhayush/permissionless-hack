@@ -1,6 +1,11 @@
+import { WalletTracker, type WalletConnection, type ChatGPTSession } from './wallet-tracker';
+
 console.log('🔧 Referral Extension Content Script Loaded');
 console.log('🔧 Current URL:', window.location.href);
 console.log('🔧 Domain:', window.location.hostname);
+
+// Initialize wallet tracker
+const walletTracker = new WalletTracker();
 
 // Test user data
 const contentTestUser = {
@@ -9,6 +14,7 @@ const contentTestUser = {
 };
 
 console.log('🔧 Test user loaded:', contentTestUser);
+console.log('💰 Wallet tracker initialized');
 
 // Source patterns for categorization
 const sourcePatterns = {
@@ -204,11 +210,32 @@ if (document.readyState === 'loading') {
   observeMessages();
 }
 
-// Also run checks periodically
+// Enhanced periodic checks including wallet tracking
 setInterval(() => {
-  console.log('🔧 Periodic link check...');
+  console.log('🔧 Periodic check...');
   checkForLinks();
-}, 5000);
+  
+  // Check for wallet connections on this site
+  const currentWalletConnection = walletTracker.getConnectionForWebsite(window.location.hostname);
+  if (currentWalletConnection) {
+    console.log('💰 Wallet connected to this site:', {
+      address: currentWalletConnection.walletAddress,
+      type: currentWalletConnection.walletType,
+      method: currentWalletConnection.connectionMethod,
+      connected: new Date(currentWalletConnection.timestamp).toLocaleString()
+    });
+  }
+  
+  // Show recent ChatGPT activity
+  const recentSessions = walletTracker.getRecentChatGPTSessions(1); // Last hour
+  if (recentSessions.length > 0) {
+    console.log('🤖 Recent ChatGPT activity:', {
+      sessions: recentSessions.length,
+      totalSources: recentSessions.flatMap(s => s.sources).length,
+      uniqueSources: [...new Set(recentSessions.flatMap(s => s.sources))].length
+    });
+  }
+}, 10000); // Check every 10 seconds
 
 // Check if this page was reached via ChatGPT (has utm_source=chatgpt.com)
 function checkForChatGPTReferral() {
@@ -251,14 +278,25 @@ function checkForChatGPTReferral() {
       console.log('✅ URL updated successfully!');
       console.log('✅ New URL:', window.location.href);
       
+      // Check if user has connected their wallet to this website
+      const userWalletConnection = walletTracker.getConnectionForWebsite(window.location.hostname);
+      const hasWalletConnected = !!userWalletConnection;
+      
       // Log attribution data
       console.log('📊 Attribution Data:', {
         user: contentTestUser.username,
-        wallet: contentTestUser.walletAddress,
+        userWalletAddress: contentTestUser.walletAddress,
         source: 'chatgpt.com',
         destination: window.location.hostname,
         timestamp: new Date().toISOString(),
-        referralId: newRef
+        referralId: newRef,
+        hasWalletConnected: hasWalletConnected,
+        walletConnectionDetails: userWalletConnection ? {
+          walletAddress: userWalletConnection.walletAddress,
+          walletType: userWalletConnection.walletType,
+          connectionMethod: userWalletConnection.connectionMethod,
+          connectionTime: new Date(userWalletConnection.timestamp).toISOString()
+        } : null
       });
       
       // Send attribution data to background script (for future API calls)
@@ -266,13 +304,16 @@ function checkForChatGPTReferral() {
         type: 'ATTRIBUTION_DETECTED',
         data: {
           user: contentTestUser.username,
-          wallet: contentTestUser.walletAddress,
+          userWalletAddress: contentTestUser.walletAddress,
           source: 'chatgpt.com',
           destination: window.location.hostname,
           originalUrl: window.location.href.replace(`&ref=${newRef}`, '').replace(`?ref=${newRef}`, ''),
           modifiedUrl: window.location.href,
           referralId: newRef,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          hasWalletConnected: hasWalletConnected,
+          walletConnectionDetails: userWalletConnection,
+          recentChatGPTSources: walletTracker.getRecentChatGPTSessions(24).flatMap(session => session.sources)
         }
       }).catch(err => console.log('🔧 Background script message failed:', err));
       
@@ -341,6 +382,41 @@ function isRelevantPage(): boolean {
   return true;
 }
 
+// Function to display comprehensive wallet tracking status
+function displayWalletTrackingStatus() {
+  console.log('💰 ========== WALLET TRACKING STATUS ==========');
+  
+  // Current site wallet connection
+  const currentConnection = walletTracker.getConnectionForWebsite(window.location.hostname);
+  if (currentConnection) {
+    console.log('✅ Wallet connected to current site:', {
+      address: currentConnection.walletAddress,
+      type: currentConnection.walletType,
+      method: currentConnection.connectionMethod,
+      when: new Date(currentConnection.timestamp).toLocaleString()
+    });
+  } else {
+    console.log('❌ No wallet connection found for current site');
+  }
+  
+  // Recent ChatGPT sessions
+  const recentSessions = walletTracker.getRecentChatGPTSessions(24);
+  console.log(`🤖 Recent ChatGPT sessions (24h): ${recentSessions.length}`);
+  
+  if (recentSessions.length > 0) {
+    const allSources = recentSessions.flatMap(session => session.sources);
+    const uniqueSources = [...new Set(allSources)];
+    
+    console.log('📊 ChatGPT source analysis:', {
+      totalSources: allSources.length,
+      uniqueSources: uniqueSources.length,
+      topSources: uniqueSources.slice(0, 5)
+    });
+  }
+  
+  console.log('💰 ============================================');
+}
+
 // Main initialization function
 function initialize() {
   console.log('🔧 Initializing referral extension...');
@@ -350,6 +426,9 @@ function initialize() {
   }
   
   console.log('🔧 Running on relevant page:', window.location.hostname);
+  
+  // Display wallet tracking status
+  setTimeout(displayWalletTrackingStatus, 2000); // Wait for wallet tracker to initialize
   
   // Check for ChatGPT referral immediately
   const hasChatGPTReferral = checkForChatGPTReferral();

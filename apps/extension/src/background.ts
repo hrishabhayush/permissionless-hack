@@ -1,3 +1,5 @@
+import type { WalletConnection, ChatGPTSession } from './wallet-tracker';
+
 console.log('🚀 Referral Extension Background Script Loaded');
 
 // Test user data (in a real app, this would come from storage/API)
@@ -15,21 +17,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'ATTRIBUTION_DETECTED') {
     console.log('🎯 Attribution detected!', message.data);
     
-    // In a real implementation, this would:
-    // 1. Send data to our API
-    // 2. Track the attribution in our database
-    // 3. Prepare for future payout calculations
-    
-    console.log('💰 Attribution data that would be sent to API:', {
+    // Enhanced logging with wallet tracking data
+    console.log('💰 Enhanced attribution data that would be sent to API:', {
       user: message.data.user,
-      wallet: message.data.wallet,
+      userWalletAddress: message.data.userWalletAddress,
       source: message.data.source,
       destination: message.data.destination,
       referralId: message.data.referralId,
       timestamp: message.data.timestamp,
       originalUrl: message.data.originalUrl,
-      modifiedUrl: message.data.modifiedUrl
+      modifiedUrl: message.data.modifiedUrl,
+      hasWalletConnected: message.data.hasWalletConnected,
+      recentChatGPTSources: message.data.recentChatGPTSources?.length || 0
     });
+    
+    // Log wallet connection status for this site
+    if (message.data.hasWalletConnected && message.data.walletConnectionDetails) {
+      console.log('🔗 User wallet connected to this site:', {
+        userWalletAddress: message.data.walletConnectionDetails.walletAddress,
+        walletType: message.data.walletConnectionDetails.walletType,
+        connectionMethod: message.data.walletConnectionDetails.connectionMethod,
+        connectionTime: message.data.walletConnectionDetails.connectionTime
+      });
+    } else {
+      console.log('❌ User has not connected wallet to this site');
+    }
+    
+    // Log recent ChatGPT sources
+    if (message.data.recentChatGPTSources?.length > 0) {
+      const uniqueSources = [...new Set(message.data.recentChatGPTSources)];
+      console.log('🤖 Recent ChatGPT sources analysis:', {
+        totalSources: message.data.recentChatGPTSources.length,
+        uniqueSources: uniqueSources.length,
+        topSources: uniqueSources.slice(0, 10)
+      });
+    }
     
     // Store attribution locally for now
     chrome.storage.local.get(['attributions'], (result) => {
@@ -39,6 +61,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       chrome.storage.local.set({ attributions }, () => {
         console.log('💾 Attribution stored locally');
         console.log('📊 Total attributions:', attributions.length);
+      });
+    });
+    
+    sendResponse({ success: true });
+  }
+  
+  // Handle wallet tracking messages
+  if (message.type === 'WALLET_CONNECTION') {
+    console.log('🔗 Wallet connection detected:', message.data);
+    
+    // Store wallet connection locally
+    chrome.storage.local.get(['walletConnections'], (result) => {
+      const connections = result.walletConnections || [];
+      connections.push(message.data);
+      
+      chrome.storage.local.set({ walletConnections: connections }, () => {
+        console.log('💾 Wallet connection stored');
+        console.log('📊 Total wallet connections:', connections.length);
+      });
+    });
+    
+    sendResponse({ success: true });
+  }
+  
+  if (message.type === 'CHATGPT_SESSION') {
+    console.log('🤖 ChatGPT session tracked:', message.data);
+    
+    // Store ChatGPT session locally
+    chrome.storage.local.get(['chatgptSessions'], (result) => {
+      const sessions = result.chatgptSessions || [];
+      sessions.push(message.data);
+      
+      chrome.storage.local.set({ chatgptSessions: sessions }, () => {
+        console.log('💾 ChatGPT session stored');
+        console.log('📊 Total ChatGPT sessions:', sessions.length);
       });
     });
     
