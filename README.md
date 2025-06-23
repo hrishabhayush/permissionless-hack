@@ -1,4 +1,4 @@
-# Referral Attribution Bridge
+# Requity
 
 A Chrome extension + platform that reconnects ChatGPT product recommendations to their original sources, ensuring content creators get compensated while users earn rewards for their product research.
 
