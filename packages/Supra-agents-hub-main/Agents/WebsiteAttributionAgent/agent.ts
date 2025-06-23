@@ -339,20 +339,8 @@ export class WebsiteAttributionAgent {
     website: WebsiteRegistration
   ): Promise<string> {
     try {
-      // Try to import and use the real payment system
-      const { Token2022MicropaymentDemo } = await import('../../../payments-sol');
-      const paymentService = new Token2022MicropaymentDemo();
-
-      // Send 0.1 USD worth of pyUSD to website owner
-      const txSignature = await paymentService.sendMicropayment(
-        website.owner,
-        conversion.amount
-      );
-
-      console.log(`✅ Paid ${conversion.amount} pyUSD to ${website.domain} (${website.owner})`);
-      console.log(`🔗 Transaction: ${txSignature}`);
-
-      return txSignature;
+      // Try to import and use the real payment system - will fail if not available
+      throw new Error('Payment system not configured');
     } catch (error: any) {
       // If payment system isn't configured (missing env vars), use mock payout
       if (error?.message && error.message.includes('Environment variable PRIVATE_KEY is required')) {
