@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { createPaymentPayload, getUserWallet } from './utils/requity-extension'
 
 const shoeProducts = [
   { 
@@ -62,6 +63,22 @@ function ShoesPage() {
   const [checkoutComplete, setCheckoutComplete] = useState(false);
   const [cashbackStatus, setCashbackStatus] = useState<'success' | 'error' | null>(null);
   const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
+  const [userWallet, setUserWallet] = useState<string>('');
+
+  // Check for wallet on mount and periodically
+  useEffect(() => {
+    const checkWallet = () => {
+      const wallet = getUserWallet();
+      setUserWallet(wallet);
+    };
+
+    checkWallet();
+    
+    // Check every 2 seconds for wallet updates from extension
+    const interval = setInterval(checkWallet, 2000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   const addToCart = (product: { id: number; name: string; price: number; image: string; }) => {
     setCart([...cart, product]);
@@ -94,12 +111,14 @@ function ShoesPage() {
     
     // Then try the referral payment in the background
     try {
+      const paymentPayload = createPaymentPayload('shoes');
+      
       const response = await fetch('https://referral-production-6dc1.up.railway.app/api/payments/send', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ requityId: 12345 })
+        body: JSON.stringify(paymentPayload)
       });
       
       if (response.ok) {
@@ -351,11 +370,20 @@ function ShoesPage() {
               <Link to="/bags" className="text-gray-600 hover:text-amber-600 transition-colors">Bags</Link>
               <Link to="/glasses" className="text-gray-600 hover:text-emerald-600 transition-colors">Glasses</Link>
             </div>
-            <button
-              onClick={() => setShowCheckout(true)}
-              className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              disabled={cart.length === 0}
-            >
+            <div className="flex items-center space-x-4">
+              {/* Wallet Status Indicator */}
+              <div className="hidden sm:flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-100">
+                <div className={`w-2 h-2 rounded-full ${userWallet ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                <span className="text-xs text-gray-600">
+                  {userWallet ? 'Wallet Connected' : 'No Wallet'}
+                </span>
+              </div>
+              
+              <button
+                onClick={() => setShowCheckout(true)}
+                className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                disabled={cart.length === 0}
+              >
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 8M9 21h6" />
@@ -366,9 +394,10 @@ function ShoesPage() {
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-pulse">
                   {cart.length}
                 </span>
-              )}
-            </button>
-          </div>
+                                )}
+                </button>
+              </div>
+            </div>
         </nav>
       </header>
 

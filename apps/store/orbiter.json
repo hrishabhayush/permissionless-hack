@@ -1,5 +1,6 @@
 {
-  "domain": "website1.orbiter.website",
-  "buildCommand": "npm run build:web1",
+  "siteId": "fab2fa15-cc9b-4340-ae16-684df478f8ba",
+  "domain": "stepup",
+  "buildCommand": "npm run build",
   "buildDir": "dist"
 }

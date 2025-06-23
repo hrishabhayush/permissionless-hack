@@ -51,11 +51,14 @@ const Popup: React.FC = () => {
         requity_ethereum_wallet: walletData.ethereumAddress
       });
 
-      // Also store in requity.vercel.app domain session storage if we can access it
+      // Also store in target domains session storage if we can access them
       try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         
-        if (tab?.id && tab.url?.includes('requity.vercel.app')) {
+        const targetDomains = ['requity.vercel.app', 'stepup.orbiter.website'];
+        const currentDomain = targetDomains.find(domain => tab?.url?.includes(domain));
+        
+        if (tab?.id && currentDomain) {
           await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: (walletData: WalletData) => {
