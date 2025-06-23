@@ -94,8 +94,7 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       if (error instanceof ZodError) {
         const validationErrors = error.errors.map(err => ({
           field: err.path.join('.') || 'root',
-          message: err.message,
-          received: err.received || 'undefined'
+          message: err.message
         }));
         
         reply.status(400).send({
@@ -229,8 +228,7 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       if (error instanceof ZodError) {
         const validationErrors = error.errors.map(err => ({
           field: err.path.join('.') || 'root',
-          message: err.message,
-          received: err.received || 'undefined'
+          message: err.message
         }));
         
         reply.status(400).send({
