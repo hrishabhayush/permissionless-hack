@@ -85,15 +85,20 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
       const body = RequityPaymentSchema.parse(request.body);
       
       // Transaction requested log
-      console.log('Transaction requested:');
+      console.log('🛒 CHECKOUT PAYMENT INITIATED');
+      console.log('================================');
       if (body.solRequityId) {
-        console.log(` solRequityId: ${body.solRequityId}`);
-        console.log(` solWallets: ${body.solSourcesAddresses?.join(', ')}`);
+        console.log(`💳 Solana Payment Details:`);
+        console.log(`   Requity ID: ${body.solRequityId}`);
+        console.log(`   Source Wallets (${body.solSourcesAddresses?.length}): ${body.solSourcesAddresses?.join(', ')}`);
+        console.log(`   Amount per wallet: ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD`);
       }
       if (body.ethRequityId) {
-        console.log(` ethRequityId: ${body.ethRequityId}`);
-        console.log(` ethWallets: ${body.ethSourcesAddresses?.join(', ')}`);
+        console.log(`💳 Ethereum Payment Details:`);
+        console.log(`   Requity ID: ${body.ethRequityId}`);
+        console.log(`   Source Wallets (${body.ethSourcesAddresses?.length}): ${body.ethSourcesAddresses?.join(', ')}`);
       }
+      console.log('================================');
       
       const service = getPaymentService();
       const results: PaymentResult[] = [];
@@ -123,24 +128,34 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
 
           results.push(result);
 
-          // Status of solana transaction
-          console.log('Status of solana transaction');
-          console.log(`Transaction passed for ${recipientAddress}: ${signature ? 'SUCCESS' : 'FAILED'}`);
+          // Payment status log
+          console.log(`✅ PAYMENT SUCCESS: ${recipientAddress}`);
+          console.log(`   💰 Amount: ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD`);
+          console.log(`   📋 Signature: ${signature}`);
 
         } catch (error) {
-          // Status of solana transaction
-          console.log('Status of solana transaction');
-          console.log(`Transaction passed for ${recipientAddress}: FAILED`);
+          // Payment status log
+          console.log(`❌ PAYMENT FAILED: ${recipientAddress}`);
+          console.log(`   💰 Amount: ${PAYOUT_AMOUNT_PER_SOURCE} PYUSD`);
+          console.log(`   ⚠️  Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
           // Continue with other recipients even if one fails
         }
       }
 
       if (body.ethSourcesAddresses) {
         // TODO: Implement Ethereum payment logic
-        console.log(`Processing ${body.ethSourcesAddresses.length} Ethereum addresses (payment logic not implemented).`);
+        console.log(`⚠️  Ethereum payments pending: ${body.ethSourcesAddresses.length} addresses (implementation needed)`);
       }
       
       const totalSent = results.reduce((sum, r) => sum + r.amount, 0);
+      
+      // Payment summary
+      console.log('📊 PAYMENT SUMMARY');
+      console.log('================================');
+      console.log(`💸 Total Amount Sent: ${totalSent} PYUSD`);
+      console.log(`✅ Successful Transfers: ${results.length}/${allSolanaRecipients.size}`);
+      console.log(`👥 Total Recipients: ${allSolanaRecipients.size + (body.ethSourcesAddresses?.length || 0)}`);
+      console.log('================================\n');
       
       reply.status(200).send({
         success: true,

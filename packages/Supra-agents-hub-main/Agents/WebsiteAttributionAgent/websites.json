@@ -1,22 +1,22 @@
 {
-  "5d9356e499d67dd1": {
+  "2369e1e78c763988": {
     "domain": "hrishabhayush.com",
-    "owner": "0x88cdfbca933fb6e17bb79e1a6a447cc884bad716",
-    "supraPubKey": "0x88cdfbca933fb6e17bb79e1a6a447cc884bad716",
-    "verificationToken": "4408822cb1adeecb4b6d85fb532803aae362ae1d9d177759db0b57052c83ef19",
+    "owner": "0xff8900703ef5608d1943d1271cd817b8bb294db268f1fd4c711c3cff29dc9a25",
+    "supraPubKey": "0xff8900703ef5608d1943d1271cd817b8bb294db268f1fd4c711c3cff29dc9a25",
+    "verificationToken": "abab4a86d8d17d185992f7db077b4738fc0b1d599acd83fee415df9da2fd36c0",
     "isVerified": true,
-    "registrationTimestamp": 1750646466160,
-    "totalConversions": 10,
-    "totalEarnings": "800000"
+    "registrationTimestamp": 1750725925029,
+    "totalConversions": 2,
+    "totalEarnings": "200000"
   },
-  "b23e2f0a3073c67e": {
+  "ec01ab04045984ad": {
     "domain": "supra.com",
-    "owner": "",
-    "supraPubKey": "",
-    "verificationToken": "520bf5f82e70433a6b40da4211e3d6f7a75ce162c130f56659489e919daffda4",
+    "owner": "0xff8900703ef5608d1943d1271cd817b8bb294db268f1fd4c711c3cff29dc9a25",
+    "supraPubKey": "0xff8900703ef5608d1943d1271cd817b8bb294db268f1fd4c711c3cff29dc9a25",
+    "verificationToken": "dc94b37bb2678d2b68a935943279a2701a226819d2981141a086c3f18efad75e",
     "isVerified": false,
-    "registrationTimestamp": 1750704894318,
+    "registrationTimestamp": 1750725969459,
     "totalConversions": 1,
-    "totalEarnings": 0
+    "totalEarnings": "0"
   }
 }

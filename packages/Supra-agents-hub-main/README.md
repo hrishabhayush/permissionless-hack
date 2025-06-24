@@ -16,12 +16,6 @@ Supra is built for **autonomous execution** and **real-time data processing**, e
 
 ## How to Get Started  
 
-1️⃣ **Clone this repo**
-
-```bash
-git clone https://github.com/Supra-Labs/Supra-agents-hub.git
-```
-
 2️⃣ **Navigate into the Agents Directory**
 
 ```bash
@@ -37,18 +31,20 @@ This sub-repo contains several AI agent implementations for interacting with **S
 | **Repo Name**        | **Description** |
 |----------------------|---------------------------------------------------------------|
 | **Trading Assist Agent**         | Fetches Market Data via Supra’s oracles, Computes Technical Indicators, uses a ML Model for Short-Term Predictions, and lets you ask follow-up questions to understand Market. |
-| **Supra OnChain Agent**         | Interacts directly with the Supra blockchain via the **Supra-L1-SDK**. It allows users to fetch balances, fund accounts via the faucet, check transaction details, retrieve transaction history, and display account resources. |
+| **SurpaOnChainAgent**         | Interacts directly with the Supra blockchain via the **Supra-L1-SDK**. It allows users to fetch balances, fund accounts via the faucet, check transaction details, retrieve transaction history, and display account resources. |
 | **OpenBlocksAI Agent**         | Interacts with the **Supra Network** using **OpenBlocks.ai**, It enables users to fetch transfer stats, view recent on-chain transactions, and retrieve finalized transactions from wallet's Move account. |
 | **Account Interaction Agent**         | Perform real-time on-chain tasks like Tracking transactions and Requesting testnet tokens etc..(balances, transactions, faucet). |
 | **Price Feed Agent**         | Interacts with Supra's real-time price feeds and historical OHLC data APIs to get to reliable market insights.   |
-| **Website Attribution Agent** | 
+| **WebsiteAttributionAgent** | Leverages the Supra-L1-SDK to create a decentralized website attribution system that tracks conversions and automatically processes Supra payouts. Enables website owners to register domains, verify ownership, track conversions, and receive automated micropayments for successful referrals. | 
 
-## Create **YOUR FIRST AGENT ON SUPRA** : 
+## 🚀 Featured: Website Attribution Agent
 
-📄 **Docs** → [Your First Agent on Supra Documentation](https://docs.supra.com/ai-agents)
+The **Website Attribution Agent** introduces **autonomous payment systems** for website attribution tracking with:
 
-## 🔗 Quick Links  
+- **Autonomous Micropayments** → AI-driven automatic payouts for conversions
+- **Universal Tracking** → Track any website with escrow-based payments  
+- **Real-time Verification** → Instant on-chain domain ownership verification
 
-- 🌍 **Website** → [Supra Official Site](https://supra.com/)      
-- 🐦 **X (Twitter)** → [Follow Supra](https://x.com/SUPRA_Labs)  
-- 💬 **Community Discord** → [Join the Supra Dev Community](https://discord.com/invite/supra)  
+**Experience decentralized attribution and automated payments on Supra L1!**
+
+---
