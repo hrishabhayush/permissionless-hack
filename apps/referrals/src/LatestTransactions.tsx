@@ -47,51 +47,26 @@ const SolanaTransactions = ({
     setError(null);
 
     const API_KEY = '3dabedd5-e4b3-4088-9053-8ae838617229'; // Replace with your Helius API key
-    const rpcUrl = network === 'devnet'
-      ? `https://devnet.helius-rpc.com/?api-key=${API_KEY}`
-      : `https://mainnet.helius-rpc.com/?api-key=${API_KEY}`;
-    
-    const parsingUrl = network === 'devnet'
-      ? `https://api-devnet.helius.xyz/v0/transactions/?api-key=${API_KEY}`
-      : `https://api.helius.xyz/v0/transactions/?api-key=${API_KEY}`;
+    const baseUrl = network === 'devnet'
+      ? 'https://api-devnet.helius.xyz'
+      : 'https://api.helius.xyz';
+    const url = `${baseUrl}/v0/addresses/${address}/transactions?api-key=${API_KEY}&limit=${limit}&type=TRANSFER`;
 
     try {
-      // Step 1: Get transaction signatures for the address
-      const signaturesResponse = await fetch(rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          id: 'requity-signatures',
-          method: 'getSignaturesForAddress',
-          params: [address, { limit }],
-        }),
-      });
-      const signaturesData = await signaturesResponse.json();
-      if (signaturesData.error) throw new Error(signaturesData.error.message);
-      
-      const signatures = signaturesData.result.map((s: any) => s.signature);
-      if (signatures.length === 0) {
+      const response = await fetch(url);
+      const data: HeliusTransaction[] = await response.json();
+      if (data.length === 0) {
         setTransactions([]);
         return;
       }
 
-      // Step 2: Get parsed transaction details for the fetched signatures
-      const detailsResponse = await fetch(parsingUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transactions: signatures }),
-      });
-      const detailsData: HeliusTransaction[] = await detailsResponse.json();
-
       const filteredByToken = filterByTokenMint
-        ? detailsData.filter((tx) =>
+        ? data.filter((tx: HeliusTransaction) =>
             tx.tokenTransfers?.some(transfer => transfer.mint === filterByTokenMint)
           )
-        : detailsData;
+        : data;
       
       setTransactions(filteredByToken);
-
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
     } finally {

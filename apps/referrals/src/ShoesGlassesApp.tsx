@@ -13,31 +13,22 @@ const ShoesGlassesApp = () => {
 
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-semibold mb-6">Latest Reviews</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Example product cards */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Shoes" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The Urban Walker</h3>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Glasses" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The Visionary Frames</h3>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
+        <div className="space-y-12">
+          <article className="prose lg:prose-xl">
+            <h3>Complete the Look: The Urban Walker Shoes & Visionary Frames</h3>
+            <p>This review covers the ultimate pairing for the style-conscious individual. The Urban Walker shoes provide exceptional comfort for all-day wear, while the Visionary Frames offer a sophisticated look with top-notch lens quality. We explore how these two products complement each other to create a polished and modern aesthetic, perfect for both work and leisure.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
         </div>
       </main>
 
-      <footer className="bg-white mt-12 py-8">
+      <footer className="bg-white mt-12 py-8 text-center">
         <div className="container mx-auto px-4">
-          <LatestTransactions
+          {/* <LatestTransactions
             network="devnet"
             filterByTokenMint="CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM"
-          />
+          /> */}
+          <a href="https://explorer.solana.com/address/3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y/tokens?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Transactions on Solana Explorer</a>
         </div>
       </footer>
     </div>

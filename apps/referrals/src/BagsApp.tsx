@@ -13,26 +13,27 @@ const BagsApp = () => {
 
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-semibold mb-6">Latest Handbag Reviews</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Example product card */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Handbag" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The Metro Tote</h3>
-              <p className="text-gray-700">A perfect blend of style and function for the modern professional.</p>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
-          {/* Add more product cards here */}
+        <div className="space-y-12">
+          <article className="prose lg:prose-xl">
+            <h3>Classic Leather Tote</h3>
+            <p>The Classic Leather Tote is a timeless piece that combines elegance with practicality. Made from genuine full-grain leather, it's designed to withstand daily use while developing a beautiful patina over time. Its spacious interior includes multiple pockets for organization, making it perfect for work or weekend outings. We were impressed by its durable construction and high-quality hardware.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
+          <article className="prose lg:prose-xl">
+            <h3>The Adventure Backpack</h3>
+            <p>For those who need a versatile and durable bag, the Adventure Backpack is an excellent choice. It features a water-resistant exterior, padded laptop compartment, and numerous pockets for all your gear. We tested it on a weekend hiking trip and found it to be comfortable to carry, even when fully loaded. The thoughtful design and rugged materials make it a top contender for travel and outdoor activities.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
         </div>
       </main>
 
-      <footer className="bg-white mt-12 py-8">
+      <footer className="bg-white mt-12 py-8 text-center">
         <div className="container mx-auto px-4">
-          <LatestTransactions
+          {/* <LatestTransactions
             network="devnet"
             filterByTokenMint="CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM"
-          />
+          /> */}
+          <a href="https://explorer.solana.com/address/3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y/tokens?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Transactions on Solana Explorer</a>
         </div>
       </footer>
     </div>

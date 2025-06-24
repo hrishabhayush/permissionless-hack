@@ -13,31 +13,22 @@ const ShoesBagsApp = () => {
 
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-semibold mb-6">Latest Reviews</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Example product cards */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Shoes" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The All-Terrain Sneaker</h3>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Bag" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The City Carry-All</h3>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
+        <div className="space-y-12">
+          <article className="prose lg:prose-xl">
+            <h3>The Globetrotter's Duo: All-Terrain Shoes & City Carry-All Bag</h3>
+            <p>We review the perfect combination for the modern traveler. The All-Terrain Shoes offer unparalleled comfort and durability, suitable for both urban exploration and light trails. Paired with the City Carry-All, a versatile and stylish bag with ample storage, you're ready for any adventure. We tested this pair on a week-long city trip and were impressed by their performance and cohesive design.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
         </div>
       </main>
       
-      <footer className="bg-white mt-12 py-8">
+      <footer className="bg-white mt-12 py-8 text-center">
         <div className="container mx-auto px-4">
-          <LatestTransactions
+          {/* <LatestTransactions
             network="devnet"
             filterByTokenMint="CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM"
-          />
+          /> */}
+          <a href="https://explorer.solana.com/address/3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y/tokens?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Transactions on Solana Explorer</a>
         </div>
       </footer>
     </div>

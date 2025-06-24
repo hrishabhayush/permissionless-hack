@@ -9,26 +9,27 @@
     {
       "id": "WEB2", 
       "wallet": "FEyBMJ3ofTzdUkfofYgYE5ANTNgqr8NsJbJhMZBBw7R4",
-      "items": ["bags", "handbags"],
+      "items": ["bags"],
       "url": "https://website2.orbiter.website/"
     },
     {
       "id": "WEB3",
       "wallet": "Bv8eMNvt81tLXtqgN3awRtjez2skW338C2fk9np8JmCJ", 
-      "items": ["glasses", "eyewear"],
+      "items": ["glasses"],
       "url": "https://website3.orbiter.website/"
     },
     {
       "id": "WEB4",
       "wallet": "4Tqqk9BGFhEXZEETHDbM2TSqaQqED3yXH9rwwHTv4Sus",
-      "items": ["shoes", "bags", "handbags"],
+      "items": ["shoes", "bags"],
       "url": "https://website4.orbiter.website/"
     },
     {
       "id": "WEB5",
       "wallet": "PM6h2Wf7hMTtxDkrwcNk3QPTFDF89xsnQRCKyN9Dg1F",
-      "items": ["shoes", "glasses", "eyewear"],
+      "items": ["shoes", "glasses"],
       "url": "https://website5.orbiter.website/"
     }
   ]
-} 
+}
+

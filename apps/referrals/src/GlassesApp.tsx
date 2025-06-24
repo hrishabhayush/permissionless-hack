@@ -13,26 +13,27 @@ const GlassesApp = () => {
 
       <main className="container mx-auto px-4 py-8">
         <h2 className="text-2xl font-semibold mb-6">Latest Glasses Reviews</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Example product card */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img src="https://via.placeholder.com/300" alt="Glasses" className="w-full h-48 object-cover" />
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-2">The Aviator Classic</h3>
-              <p className="text-gray-700">Timeless style meets modern craftsmanship.</p>
-              <a href="#" className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Read Review</a>
-            </div>
-          </div>
-          {/* Add more product cards here */}
+        <div className="space-y-12">
+          <article className="prose lg:prose-xl">
+            <h3>The Tech Innovator Frames</h3>
+            <p>These frames are a game-changer for anyone who spends hours in front of a screen. Featuring advanced blue light filtering technology and ultra-lightweight materials, they provide exceptional comfort and reduce eye strain. We found the minimalist design to be both stylish and professional, suitable for any setting.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
+          <article className="prose lg:prose-xl">
+            <h3>Sunset Aviators</h3>
+            <p>Combining classic aviator style with superior lens technology, the Sunset Aviators offer 100% UV protection and polarized lenses to reduce glare. The build quality is excellent, with a sturdy yet lightweight frame. They performed exceptionally well in our outdoor tests, providing crystal-clear vision even in bright sunlight.</p>
+            <a href="#" className="text-blue-600 hover:underline">Read the full review...</a>
+          </article>
         </div>
       </main>
 
-      <footer className="bg-white mt-12 py-8">
+      <footer className="bg-white mt-12 py-8 text-center">
         <div className="container mx-auto px-4">
-          <LatestTransactions
+          {/* <LatestTransactions
             network="devnet"
             filterByTokenMint="CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM"
-          />
+          /> */}
+          <a href="https://explorer.solana.com/address/3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y/tokens?cluster=devnet" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">View Transactions on Solana Explorer</a>
         </div>
       </footer>
     </div>
