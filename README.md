@@ -1,208 +1,136 @@
-# Requity
+# Permissionless Hack Project
 
-A Chrome extension + platform that reconnects ChatGPT product recommendations to their original sources, ensuring content creators get compensated while users earn rewards for their product research.
+A comprehensive platform integrating **Solana pyUSD payments**, **Supra blockchain attribution**, and **Chrome extension** technology for decentralized commerce attribution.
 
-## Project Overview
+## 🏗️ Project Structure
 
-**Problem:** When users ask ChatGPT for product recommendations, ChatGPT aggregates information from multiple content creators (tech blogs, review sites) but provides generic product links. This breaks the attribution chain - creators who researched and reviewed products lose revenue when their recommendations lead to purchases.
+### 📦 Core Packages
 
-**Solution:** A Chrome extension + platform that reconnects ChatGPT product recommendations to their original sources, ensuring content creators get compensated while users earn rewards for their product research.
+**`packages/payments-sol/`** - **Main Payment Logic** 🚀
+- Solana pyUSD transaction processing on Devnet
+- Smart contract interactions
+- Crypto micropayment automation
 
-## Core Value Proposition
+**`packages/database/`** - Data Management
+- Database schemas and clients
+- Attribution tracking
+- User and transaction records
 
-- **For Users:** Earn PYUSD rewards for your ChatGPT product research
-- **For Content Creators:** Get compensated when your reviews influence purchases (zero setup - just add a meta tag)
-- **For the Ecosystem:** Fair attribution and revenue sharing using crypto micropayments
+**`packages/Supra-agents-hub-main/`** - **Supra Web Attribution Agent** 🤖
+- Decentralized website attribution system
+- Automatic conversion tracking and payouts
+- Domain verification and escrow management
 
-## How It Works
+### 🚀 Applications
 
-1. User signs up and installs Chrome extension
-2. When ChatGPT recommends products with sources, extension replaces generic links with attribution-enabled tracking links
-3. System discovers content creator wallet addresses from their website meta tags
-4. When user makes purchase, commission automatically splits via PYUSD: 60% to sources, 20% to user, 20% to platform
-5. Everyone gets paid instantly with near-zero transaction fees
+**`apps/extension/`** - Chrome Extension ✅
+- Monitors ChatGPT product recommendations
+- Real-time link attribution injection
+- Background attribution processing
 
-## Repository Structure
+**`apps/web/`** - User Dashboard
+- User registration and wallet management
+- Earnings tracking and analytics
 
-This is a **pnpm monorepo** containing all components needed for a complete demo ecosystem:
+**`apps/api/`** - Backend Services
+- Attribution API endpoints
+- Payment processing coordination
 
-### Core Applications (`apps/`)
+**`apps/store/`** - Demo E-commerce
+- Mock storefront for testing
+- Purchase flow simulation
 
-**`extension/`** - Chrome extension that monitors ChatGPT and replaces product links ✅ **COMPLETED**
-- Goal: Seamless user experience, instant link replacement, background attribution
-- **Status:** Fully functional - detects `utm_source=chatgpt.com` and injects referral parameters
+**`apps/landing/wallet-frontend/`** - Wallet Interface
+- RainbowKit + wagmi integration
+- Modern Web3 wallet connection
+- **Live:** https://requity.vercel.app
 
-**`web/`** - User registration and dashboard website  
-- Goal: User onboarding, wallet management, earnings tracking
+## 🏛️ System Architecture
 
-**`api/`** - Backend service for link generation and attribution tracking
-- Goal: Fast API responses, reliable background processing, payout automation
+![System Architecture](./system-architecture.png)
 
-**`store/`** - Mock e-commerce storefront for demo purposes
-- Goal: Simulate partner store, demonstrate purchase flow, trigger payout webhooks
+The system follows a comprehensive flow:
 
-**`demo-sites/`** - Mock content creator websites (TechReviewer, GadgetGuru, ReviewMaster)
-- Goal: Realistic demo environment, showcase wallet discovery, provide attribution sources
+1. **Sources Crawler** - Asynchronously discovers and maps content creator websites with wallet addresses
+2. **Database** - Central storage for source domains, referral links, and user mappings  
+3. **Backend** - Maps users and sources to unique referral link codes
+4. **Chrome Extension** - Intercepts ChatGPT recommendations and injects attribution links
+5. **Main Web Platform** - Handles authentication, extension management, and analytics
+6. **Partner Integration** - E-commerce stores notify the system upon purchase completion
+7. **Payment Processing** - Automated PYUSD distribution to all parties via Solana
 
-### Shared Packages (`packages/`)
+## 🔧 Quick Setup
 
-**`shared/`** - Common types and utilities across all applications
-- Goal: Type safety, code reuse, consistent data models
-
-**`database/`** - Database schemas and client
-- Goal: Centralized data management, attribution tracking, user/payout records
-
-## Chrome Extension - Technical Implementation ✅
-
-### Current Status: WORKING
-The Chrome extension successfully detects ChatGPT referrals and injects attribution parameters.
-
-### How It Works
-
-1. **Universal Detection**: Extension runs on all websites (`<all_urls>`) to detect incoming ChatGPT referrals
-2. **UTM Parameter Detection**: Monitors for `utm_source=chatgpt.com` parameter in URLs
-3. **Referral Injection**: Automatically adds `ref=testuser_timestamp` parameter to track attribution
-4. **Background Processing**: Logs attribution data and stores it locally for future API integration
-
-### Key Features
-
-- **Real-time URL modification** using `window.history.replaceState()`
-- **Attribution tracking** with user wallet addresses
-- **Background script communication** for centralized data management
-- **Comprehensive logging** for debugging and monitoring
-- **Cross-site compatibility** works on any website receiving ChatGPT referrals
-
-### Technical Architecture
-
-```
-ChatGPT → User clicks link with utm_source=chatgpt.com → 
-Destination Site (e.g., visioncenter.org) → 
-Extension detects UTM parameter → 
-Adds ref=user_timestamp → 
-Logs attribution data → 
-Sends to background script → 
-Stores for future payout processing
-```
-
-### Files Structure
-
-```
-apps/extension/
-├── public/
-│   └── manifest.json          # Extension configuration
-├── src/
-│   ├── background.ts          # Service worker for data processing
-│   └── content.ts             # Content script for URL detection
-├── dist/                      # Built extension files
-└── package.json
-```
-
-### Build & Test
-
+### Prerequisites
 ```bash
-# Build the extension
-pnpm extension:build
-
-# Load in Chrome
-1. Go to chrome://extensions/
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select apps/extension/dist folder
-
-# Test
-Navigate to: https://www.visioncenter.org/reviews/best-sunglasses/?utm_source=chatgpt.com
-Check console for attribution logs
+# Install pnpm globally
+npm install -g pnpm
 ```
 
-### Console Output Example
-
-When working correctly, you'll see:
-```
-🔧 Referral Extension Content Script Loaded
-🔧 Current URL: https://www.visioncenter.org/reviews/best-sunglasses/?utm_source=chatgpt.com
-🎯 CHATGPT REFERRAL DETECTED!
-🔧 Adding referral parameter...
-✅ URL updated successfully!
-📊 Attribution Data: {user: "testuser", wallet: "0x742d35...", source: "chatgpt.com"}
-```
-
-### Next Steps for Extension
-
-- [ ] Connect to real API instead of local storage
-- [ ] Implement user authentication
-- [ ] Add popup UI for user dashboard
-- [ ] Integrate with PYUSD wallet for payouts
-- [ ] Add content creator wallet discovery via meta tags
-
-## Demo Flow (Planned)
-
-1. **Show ecosystem:** Demo content creator sites with wallet addresses in meta tags
-2. **User onboarding:** User signs up, provides PYUSD wallet, installs extension
-3. **ChatGPT interaction:** Ask about products, extension replaces links in real-time
-4. **Purchase simulation:** User clicks through to mock store, completes purchase
-5. **Instant payouts:** Watch PYUSD automatically distribute to all parties
-6. **Analytics:** Dashboard shows earnings, attribution data, transaction history
-
-## Development Commands
-
+### Installation
 ```bash
-# Install dependencies
+# Clone and install dependencies
+git clone https://github.com/hrishabhayush/permissionless-hack.git
+cd permissionless-hack
 pnpm install
-
-# Build extension
-pnpm extension:build
-
-# Package extension for distribution
-pnpm extension:package
-
-# Development mode (with watch)
-cd apps/extension && pnpm dev
-
-# Type checking
-cd apps/extension && pnpm type-check
 ```
 
-### Extension Packaging
+### Key Components Setup
 
-The `pnpm extension:package` command creates a distributable zip file:
-
-1. **Builds** the extension (`pnpm extension:build`)
-2. **Copies** `apps/extension/dist/` to a temporary `referral/` folder
-3. **Zips** the folder as `referral.zip`
-4. **Cleans up** by removing the temporary `referral/` folder
-5. **Preserves** the original `dist/` folder for development
-
-**Result:** `referral.zip` ready for Chrome Web Store or manual distribution
-
-**Usage:**
+**1. Chrome Extension:**
 ```bash
-pnpm extension:package
-# Creates referral.zip in project root
+pnpm extension:build
+# Load apps/extension/dist in Chrome Developer Mode
 ```
 
-## Business Model
+**2. Supra Attribution Agent:**
 
-- Platform commission on transactions (20%)
-- Premium user features with higher earnings splits
-- Analytics and insights for content creators
-- Potential licensing to affiliate networks
+For more detailed instructions for this agent look into Website-Attribution-
+```bash
+cd packages/Supra-agents-hub-main/Agents/WebsiteAttributionAgent
+npm install
+npx tsx agent.ts
+```
 
-## Technical Innovation
+**3. Wallet Frontend:**
+```bash
+cd apps/landing/wallet-frontend
+npm run dev
+# Open http://localhost:3000
+```
 
-- **Crypto micropayments** enable profitable sub-dollar payouts
-- **Zero-friction creator onboarding** via website meta tags
-- **Real-time attribution** with background wallet discovery
-- **Complete ecosystem** demonstration with realistic user journey
+**4. Solana Payments:**
+```bash
+cd packages/payments-sol
+# Configure for Solana Devnet
+npm run dev
+```
 
-## Success Metrics for Hackathon
+## 🎯 Core Features
 
-- [x] Working end-to-end demo from ChatGPT to referral parameter injection
-- [x] Real-time link detection and modification
-- [x] Complete attribution tracking and logging
-- [ ] Realistic content creator ecosystem with wallet discovery
-- [ ] Live blockchain transactions during demo
-- [ ] User dashboard with earnings tracking
+- **🔗 Attribution Tracking** - Real-time website conversion attribution
+- **💰 Crypto Payments** - Automated pyUSD micropayments on Solana
+- **🤖 AI Agents** - Supra blockchain-powered attribution agents
+- **🌐 Web3 Integration** - Modern wallet connection and management
+- **⚡ Chrome Extension** - Seamless ChatGPT integration
+
+## 🛠️ Tech Stack
+
+- **Blockchain:** Solana (pyUSD), Supra Network
+- **Frontend:** Next.js, React, TailwindCSS
+- **Web3:** RainbowKit, wagmi, viem
+- **Backend:** Node.js, TypeScript
+- **Extension:** Chrome Extension APIs
+- **Database:** Custom schemas for attribution
+- **Payments:** Solana Web3.js, pyUSD tokens
+
+## 🚀 Main Work Areas
+
+1. **`packages/payments-sol/`** - Primary transaction logic
+2. **`packages/Supra-agents-hub-main/`** - Attribution agent system  
+3. **`packages/database/`** - Data persistence layer
+4. **`apps/extension/`** - User interaction point
 
 ---
 
-**Current Status:** Chrome extension is fully functional and ready for integration with the broader platform ecosystem. Ready to proceed with web app, API, and demo site development.
+*Built for the Permissionless Hackathon - Connecting AI recommendations to fair creator compensation.*
