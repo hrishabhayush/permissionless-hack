@@ -3,18 +3,18 @@
 A comprehensive platform integrating **Solana pyUSD payments**, **Supra blockchain attribution**, and **Chrome extension** technology for decentralized commerce attribution.
 
 Important links used in the demo video.
-chrome extension: https://github.com/hrishabhayush/permissionless-hack/releases/download/v2.00.0/requity.zip
-custom chatgpt: https://chatgpt.com/g/g-6859f22c8c9c8191b8562345848b3c49-requity
-test websites:
-https://website1.orbiter.website/
-https://website2.orbiter.website/
-https://website3.orbiter.website/
-https://website4.orbiter.website/
-https://website5.orbiter.website/
-test store:
-https://stepup.orbiter.website/
-
+- **Chrome Extension:** [Download v2.0.0](https://github.com/hrishabhayush/permissionless-hack/releases/download/v2.00.0/requity.zip)
+- **Custom ChatGPT:** [Requiry GPT](https://chatgpt.com/g/g-6859f22c8c9c8191b8562345848b3c49-requity)
+- **Test Websites:**
+  - [Test Site 1](https://website1.orbiter.website/)
+  - [Test Site 2](https://website2.orbiter.website/)
+  - [Test Site 3](https://website3.orbiter.website/)
+  - [Test Site 4](https://website4.orbiter.website/)
+  - [Test Site 5](https://website5.orbiter.website/)
+- **Test Store:** [StepUp Store](https://stepup.orbiter.website/)
 ## 🏗️ Project Structure!
+
+![System Overview](https://github.com/hrishabhayush/permissionless-hack/blob/main/photo_2025-06-23_21-48-41.jpg)
 
 ### 📦 Core Packages
 
@@ -55,7 +55,7 @@ https://stepup.orbiter.website/
 **`apps/landing/wallet-frontend/`** - Wallet Interface
 - RainbowKit + wagmi integration
 - Modern Web3 wallet connection
-- **Live:** https://requity.vercel.app
+- **Live:** [requity.vercel.app](https://requity.vercel.app)
 
 ## 🏛️ System Architecture
 
