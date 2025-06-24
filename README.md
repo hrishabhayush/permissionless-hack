@@ -16,6 +16,17 @@ Important links used in the demo video.
 
 ![System Overview](https://github.com/hrishabhayush/permissionless-hack/blob/main/photo_2025-06-23_21-48-41.jpg)
 
+## How to test?
+Download and install the chrome extension.
+Use the provided chatgpt link to ask for shoes, glasses or bags.
+It will generate "buy" links out of some sources. It will include all.
+Click any of the buy links.
+Open the extension, put in a solana wallet (eth not supported yet, but soon)
+the link is a test store, add items and buy them it will just work
+once the purchase is completed, the user wallet plus the referred sources from the chat that have a metatag with the address
+will get the cashback.
+you can test the websites 1-5 to see the cashbacks went through.
+
 ### 📦 Core Packages
 
 **`packages/payments-sol/`** - **Main Payment Logic** 🚀
