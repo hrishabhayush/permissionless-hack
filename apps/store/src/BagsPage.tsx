@@ -109,6 +109,12 @@ function BagsPage() {
     setCart([]);
     setShowCheckout(false);
     
+    // Check if wallet is connected before attempting cashback
+    if (!userWallet) {
+      setCashbackStatus('error');
+      return;
+    }
+    
     // Then try the referral payment in the background
     try {
       const paymentPayload = createPaymentPayload('bags');
@@ -162,12 +168,12 @@ function BagsPage() {
             <p className="text-sm text-gray-600">Your order confirmation has been sent to your email</p>
             
             {/* Cashback Status */}
-            {cashbackStatus === null && (
-              <div className="mt-3 p-2 bg-yellow-50 rounded-lg flex items-center text-xs text-yellow-700 animate-pulse">
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 3.5a1.5 1.5 0 01.525 2.925l.005.005L10 7l-1.03.53a1.5 1.5 0 01-1.93-1.93l.005-.005A1.5 1.5 0 0110 3.5zm1.5 11a1.5 1.5 0 01-1.93-1.93l.005-.005L10 12l-.53-1.03a1.5 1.5 0 012.925-.525l.005.005L15 10l-1.03.53a1.5 1.5 0 01-1.97 1.97zM3.5 10a1.5 1.5 0 012.925-.525l.005-.005L7 10l-.53 1.03a1.5 1.5 0 01-1.93 1.93l-.005-.005A1.5 1.5 0 013.5 10z"></path>
+            {cashbackStatus === null && userWallet && (
+              <div className="mt-3 p-2 bg-blue-50 rounded-lg flex items-center text-xs text-blue-700 animate-pulse">
+                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Processing cashback... please wait.
+                Fetching your cashback...
               </div>
             )}
             {cashbackStatus === 'success' && (
@@ -201,7 +207,7 @@ function BagsPage() {
                 <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                Cashback payment failed
+                {!userWallet ? 'Wallet not connected' : 'Cashback payment failed'}
               </div>
             )}
           </div>
