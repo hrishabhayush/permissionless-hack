@@ -1,41 +1,10 @@
 # Website Attribution Agent
 
-The **Website Attribution Agent** leverages the **Supra-L1-SDK** to create a decentralized website attribution system that tracks conversions and automatically processes pyUSD payouts. It enables website owners to register their domains, verify ownership, track conversions, and receive automated micropayments for successful referrals.
-
-## **What the Agent Does?**
-
-✅ **Website Registration & Address Generation**  
-Create unique website IDs and verification tokens for domain ownership proof.
-
-✅ **Persistent Website Storage**  
-Automatically remembers registered websites (like account.json) to avoid duplicate registrations.
-
-✅ **Domain Ownership Verification**  
-Verify website ownership through meta tags or .well-known files.
-
-✅ **Conversion Event Tracking**  
-Track and record conversion events from ANY website (even unregistered ones) on the Supra blockchain.
-
-✅ **Automated pyUSD Payouts**  
-Process automatic micropayments (0.1 USD in pyUSD) for successful conversions.
-
-✅ **Universal Escrow System**  
-Hold conversion payouts in escrow for ANY domain until the owner registers and verifies ownership.
-
-✅ **On-Chain Data Storage**  
-Store website registrations and conversion data securely on Supra MoveVM.
-
-✅ **Analytics & Reporting**  
-View website statistics, conversion history, earnings analytics, and pending escrow funds.
+The **Website Attribution Agent** leverages the **Supra-L1-SDK** to create a decentralized website attribution system that tracks conversions and automatically processes Supra payouts. It enables website owners to register their domains with the agent, verify ownership, track conversions, and receive automated micropayments for successful referrals.
 
 ## **Run the Agent**
 
-### **1️⃣ Fork & Clone This Repo**
-```bash
-git clone https://github.com/Supra-Labs/Supra-agents-hub.git
-```
-
-``// Navigate into the agent directory``
+``// Navigate into the agent directory to run this agent``
 
 ```bash
 cd Agents
@@ -59,8 +28,8 @@ npx ts-node agent.ts
 Once running, you can enter conversational commands like:
 
 ```bash
-
-$ npx ts-node agent.ts
+npx ts-node agent.ts
+```
 
 *** Welcome to Website Attribution Agent ***
 

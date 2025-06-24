@@ -1,33 +1,25 @@
-import dotenv from 'dotenv';
-
-// Load environment variables
-dotenv.config();
-
-export type NetworkType = 'devnet' | 'mainnet';
-
-// Helper function to get environment variable with optional fallback
-function getEnvVar(name: string, defaultValue?: string): string {
-  const value = process.env[name] || defaultValue;
-  if (!value) {
-    throw new Error(`Environment variable ${name} is required. Please copy env.template to .env and fill in your values.`);
-  }
-  return value;
-}
+// Solana Configuration
+// This file contains the actual configuration for the payment system
 
 export const CONFIG = {
-  // Wallet configuration - REQUIRED from environment variables
-  PRIVATE_KEY: getEnvVar('PRIVATE_KEY'),
-  WALLET_ADDRESS: getEnvVar('WALLET_ADDRESS'),
-
-  // RPC endpoints
-  DEVNET_RPC: getEnvVar('DEVNET_RPC', 'https://api.devnet.solana.com'),
-  MAINNET_RPC: getEnvVar('MAINNET_RPC', 'https://api.mainnet-beta.solana.com'),
-
-  // PYUSD token addresses
-  PYUSD_DEVNET: getEnvVar('PYUSD_DEVNET', 'CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM'),
-  PYUSD_MAINNET: getEnvVar('PYUSD_MAINNET', '6c3ea9036406852006290770BEdFcAbA0e23A0e8'),
-
-  // Transaction settings
-  MICROPAYMENT_AMOUNT: parseFloat(getEnvVar('MICROPAYMENT_AMOUNT', '0.1')),
-  NETWORK: getEnvVar('NETWORK', 'devnet') as NetworkType,
-};
+  // Your Solana wallet private key (base58 encoded)
+  // For testing, you can use a devnet wallet or set via environment variables
+  PRIVATE_KEY: process.env.SOLANA_PRIVATE_KEY || 'your_base58_private_key_here',
+  
+  // Your wallet public key
+  WALLET_ADDRESS: process.env.SOLANA_WALLET_ADDRESS || 'your_wallet_address_here',
+  
+  // Solana RPC URLs
+  DEVNET_RPC: 'https://api.devnet.solana.com',
+  MAINNET_RPC: 'https://api.mainnet-beta.solana.com',
+  
+  // PYUSD Token Contract Addresses
+  PYUSD_DEVNET: 'CXk2AMBfi3TwaEL2468s6zP8xq9NxTXjp9gjMgzeUynM',
+  PYUSD_MAINNET: '2b1kV6DkPAnxd5ixfnxCpjxmKwqjjaYmCZfHsFu24GXo',
+  
+  // Transfer amounts (in PYUSD, will be converted to lamports)
+  MICROPAYMENT_AMOUNT: 0.01, // 0.01 PYUSD (smaller amount for testing)
+  
+  // Network to use (devnet or mainnet)
+  NETWORK: (process.env.SOLANA_NETWORK as 'devnet' | 'mainnet') || 'devnet'
+}; 
