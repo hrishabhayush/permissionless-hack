@@ -1,6 +1,6 @@
 {
   "name": "requity",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "Connects ChatGPT product recommendations back to their original sources",
   "scripts": {
@@ -11,7 +11,7 @@
     "clean": "pnpm run -r clean",
     "extension:dev": "pnpm --filter extension dev",
     "extension:build": "pnpm --filter extension build",
-    "extension:package": "pnpm extension:build && cp -r apps/extension/dist referral && zip -r referral.zip referral && rm -rf referral",
+    "extension:package": "pnpm extension:build && cp -r apps/extension/dist requity && zip -r requity.zip requity && rm -rf requity",
     "web:dev": "pnpm --filter web dev",
     "web:build": "pnpm --filter web build",
     "api:dev": "pnpm --filter api dev",

@@ -62,7 +62,7 @@ function BagsPage() {
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutComplete, setCheckoutComplete] = useState(false);
   const [cashbackStatus, setCashbackStatus] = useState<'success' | 'error' | null>(null);
-  const [transactionSignature, setTransactionSignature] = useState<string | null>(null);
+  const [transactionSignatures, setTransactionSignatures] = useState<Array<{signature: string, recipient: string, amount: number}>>([]);
   const [userWallet, setUserWallet] = useState<string>('');
 
   // Check for wallet on mount and periodically
@@ -131,9 +131,13 @@ function BagsPage() {
         const result = await response.json();
         console.log('Cashback payment successful:', result);
         setCashbackStatus('success');
-        // Extract transaction signature from the response
-        if (result.data && result.data.signature) {
-          setTransactionSignature(result.data.signature);
+        // Extract all transaction signatures from the response
+        if (result.data && result.data.results) {
+          setTransactionSignatures(result.data.results.map((tx: any) => ({
+            signature: tx.signature,
+            recipient: tx.recipient,
+            amount: tx.amount
+          })));
         }
       } else {
         const errorText = await response.text();
@@ -184,19 +188,22 @@ function BagsPage() {
                   </svg>
                   Cashback payment successful
                 </div>
-                {transactionSignature && (
-                  <div className="flex items-center text-xs">
-                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                    <a 
-                      href={`https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`}
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-green-600 hover:text-green-800 underline"
-                    >
-                      View on Solana Explorer
-                    </a>
+                {transactionSignatures.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="text-xs font-semibold mb-1">Transaction Details:</div>
+                    {transactionSignatures.map((tx, index) => (
+                      <div key={index} className="flex items-center justify-between text-xs">
+                        <span>${tx.amount} → {tx.recipient.slice(0, 8)}...{tx.recipient.slice(-8)}</span>
+                        <a 
+                          href={`https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-green-600 hover:text-green-800 underline ml-2"
+                        >
+                          View
+                        </a>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -215,7 +222,7 @@ function BagsPage() {
             onClick={() => {
               setCheckoutComplete(false);
               setCashbackStatus(null);
-              setTransactionSignature(null);
+              setTransactionSignatures([]);
             }}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
