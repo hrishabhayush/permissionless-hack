@@ -2,7 +2,19 @@
 
 A comprehensive platform integrating **Solana pyUSD payments**, **Supra blockchain attribution**, and **Chrome extension** technology for decentralized commerce attribution.
 
-## 🏗️ Project Structure
+Important links used in the demo video.
+chrome extension: https://github.com/hrishabhayush/permissionless-hack/releases/download/v2.00.0/requity.zip
+custom chatgpt: https://chatgpt.com/g/g-6859f22c8c9c8191b8562345848b3c49-requity
+test websites:
+https://website1.orbiter.website/
+https://website2.orbiter.website/
+https://website3.orbiter.website/
+https://website4.orbiter.website/
+https://website5.orbiter.website/
+test store:
+https://stepup.orbiter.website/
+
+## 🏗️ Project Structure!
 
 ### 📦 Core Packages
 
