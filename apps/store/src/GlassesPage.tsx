@@ -162,6 +162,14 @@ function GlassesPage() {
             <p className="text-sm text-gray-600">Your order confirmation has been sent to your email</p>
             
             {/* Cashback Status */}
+            {cashbackStatus === null && (
+              <div className="mt-3 p-2 bg-yellow-50 rounded-lg flex items-center text-xs text-yellow-700 animate-pulse">
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 3.5a1.5 1.5 0 01.525 2.925l.005.005L10 7l-1.03.53a1.5 1.5 0 01-1.93-1.93l.005-.005A1.5 1.5 0 0110 3.5zm1.5 11a1.5 1.5 0 01-1.93-1.93l.005-.005L10 12l-.53-1.03a1.5 1.5 0 012.925-.525l.005.005L15 10l-1.03.53a1.5 1.5 0 01-1.97 1.97zM3.5 10a1.5 1.5 0 012.925-.525l.005-.005L7 10l-.53 1.03a1.5 1.5 0 01-1.93 1.93l-.005-.005A1.5 1.5 0 013.5 10z"></path>
+                </svg>
+                Processing cashback... please wait.
+              </div>
+            )}
             {cashbackStatus === 'success' && (
               <div className="mt-3 p-2 bg-green-50 rounded-lg text-xs text-green-700">
                 <div className="flex items-center mb-1">

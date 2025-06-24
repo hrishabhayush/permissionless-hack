@@ -4,7 +4,8 @@ import {
   Transaction,
   Keypair,
   sendAndConfirmTransaction,
-  SystemProgram
+  SystemProgram,
+  TransactionInstruction
 } from '@solana/web3.js';
 import {
   getAssociatedTokenAddress,
@@ -19,6 +20,7 @@ import { CONFIG } from './config';
 
 // Token-2022 Program ID
 const TOKEN_2022_PROGRAM_ID = new PublicKey('TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb');
+const MEMO_PROGRAM_ID = new PublicKey('Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo');
 
 export class Token2022MicropaymentDemo {
   private connection: Connection;
@@ -91,7 +93,7 @@ export class Token2022MicropaymentDemo {
     }
   }
 
-  async sendMicropayment(recipientAddress: string, amount: number = CONFIG.MICROPAYMENT_AMOUNT) {
+  async sendMicropayment(recipientAddress: string, amount: number = CONFIG.MICROPAYMENT_AMOUNT, memo?: string) {
     try {
       if (!this.silent) {
         console.log('\n🚀 Sending Token-2022 PYUSD Micropayment...');
@@ -143,6 +145,17 @@ export class Token2022MicropaymentDemo {
             TOKEN_2022_PROGRAM_ID,
             ASSOCIATED_TOKEN_PROGRAM_ID
           )
+        );
+      }
+
+      // Add memo instruction if provided
+      if (memo) {
+        transaction.add(
+          new TransactionInstruction({
+            keys: [],
+            programId: MEMO_PROGRAM_ID,
+            data: Buffer.from(memo, 'utf-8'),
+          })
         );
       }
 

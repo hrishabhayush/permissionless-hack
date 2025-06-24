@@ -110,7 +110,8 @@ export const paymentRoutes: FastifyPluginCallback = async (fastify: FastifyInsta
         try {
           const signature = await service.sendMicropayment(
             recipientAddress,
-            PAYOUT_AMOUNT_PER_SOURCE
+            PAYOUT_AMOUNT_PER_SOURCE,
+            "[requity transfer]"
           );
 
           const result: PaymentResult = {

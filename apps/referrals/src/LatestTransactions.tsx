@@ -1,52 +1,42 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, ExternalLink, Clock, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
+import { RefreshCw, ExternalLink, Clock, AlertCircle, TrendingUp, DollarSign, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 
-// TypeScript interfaces for Solana transaction data
+// Interfaces match the Helius Parsed Transaction History API response
+interface HeliusTransaction {
+  signature: string;
+  timestamp: number;
+  slot: number;
+  fee: number;
+  type: string;
+  source: string;
+  transactionError: TransactionError | null;
+  tokenTransfers: {
+    fromUserAccount: string | null;
+    toUserAccount: string | null;
+    mint: string;
+    tokenAmount: number;
+  }[];
+}
+
 interface TransactionError {
   InstructionError?: [number, any];
-  [key: string]: any;
-}
-
-interface TransactionSignature {
-  signature: string;
-  blockTime: number | null;
-  slot: number;
-  err: TransactionError | null;
-}
-
-interface SolanaTransactionResult {
-  blockTime: number | null;
-  meta: {
-    err: TransactionError | null;
-    fee: number;
-    preBalances: number[];
-    postBalances: number[];
-  } | null;
-  slot: number;
-  transaction: {
-    message: {
-      accountKeys: string[];
-      instructions: any[];
-    };
-    signatures: string[];
-  };
-}
-
-interface SolanaTransactionData {
-  signature: string;
-  blockTime: number | null;
-  slot: number;
-  err: TransactionError | null;
-  transaction: SolanaTransactionResult | null;
+  [key:string]: any;
 }
 
 interface SolanaTransactionsProps {
-  address: string;
+  address?: string;
+  network?: 'mainnet-beta' | 'devnet';
   limit?: number;
+  filterByTokenMint?: string;
 }
 
-const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) => {
-  const [transactions, setTransactions] = useState<SolanaTransactionData[]>([]);
+const SolanaTransactions = ({
+  address = '3QzXMwX4b6hwuNMKLjyZJtK4W5JqxoojgSKDX9Gqot3Y',
+  network = 'mainnet-beta',
+  limit = 25,
+  filterByTokenMint
+}: SolanaTransactionsProps) => {
+  const [transactions, setTransactions] = useState<HeliusTransaction[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,58 +46,51 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
     setLoading(true);
     setError(null);
 
-    const HELIUS_RPC_ENDPOINT = 'https://mainnet.helius-rpc.com/?api-key=3dabedd5-e4b3-4088-9053-8ae838617229';
+    const API_KEY = '3dabedd5-e4b3-4088-9053-8ae838617229'; // Replace with your Helius API key
+    const rpcUrl = network === 'devnet'
+      ? `https://devnet.helius-rpc.com/?api-key=${API_KEY}`
+      : `https://mainnet.helius-rpc.com/?api-key=${API_KEY}`;
+    
+    const parsingUrl = network === 'devnet'
+      ? `https://api-devnet.helius.xyz/v0/transactions/?api-key=${API_KEY}`
+      : `https://api.helius.xyz/v0/transactions/?api-key=${API_KEY}`;
 
     try {
-      // Fetch transaction signatures
-      const signaturesResponse = await fetch(HELIUS_RPC_ENDPOINT, {
+      // Step 1: Get transaction signatures for the address
+      const signaturesResponse = await fetch(rpcUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           jsonrpc: '2.0',
-          id: 1,
+          id: 'requity-signatures',
           method: 'getSignaturesForAddress',
-          params: [address, { limit }]
-        })
+          params: [address, { limit }],
+        }),
       });
-
       const signaturesData = await signaturesResponse.json();
-
-      if (signaturesData.error) {
-        throw new Error(signaturesData.error.message);
+      if (signaturesData.error) throw new Error(signaturesData.error.message);
+      
+      const signatures = signaturesData.result.map((s: any) => s.signature);
+      if (signatures.length === 0) {
+        setTransactions([]);
+        return;
       }
 
-      const signatures: TransactionSignature[] = signaturesData.result;
-
-      // Fetch transaction details
-      const transactionPromises = signatures.map(async (sig: TransactionSignature) => {
-        const txResponse = await fetch(HELIUS_RPC_ENDPOINT, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'getTransaction',
-            params: [sig.signature, { maxSupportedTransactionVersion: 0 }]
-          })
-        });
-
-        const txData = await txResponse.json();
-        return {
-          signature: sig.signature,
-          blockTime: sig.blockTime,
-          slot: sig.slot,
-          err: sig.err,
-          transaction: txData.result
-        };
+      // Step 2: Get parsed transaction details for the fetched signatures
+      const detailsResponse = await fetch(parsingUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ transactions: signatures }),
       });
+      const detailsData: HeliusTransaction[] = await detailsResponse.json();
 
-      const transactionResults = await Promise.all(transactionPromises);
-      setTransactions(transactionResults.filter((tx: SolanaTransactionData) => tx.transaction !== null));
+      const filteredByToken = filterByTokenMint
+        ? detailsData.filter((tx) =>
+            tx.tokenTransfers?.some(transfer => transfer.mint === filterByTokenMint)
+          )
+        : detailsData;
+      
+      setTransactions(filteredByToken);
 
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred');
@@ -118,7 +101,7 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
 
   useEffect(() => {
     fetchTransactions();
-  }, [address]);
+  }, [address, network, filterByTokenMint, limit]);
 
   const formatDate = (timestamp: number | null) => {
     if (!timestamp) return 'Unknown';
@@ -129,8 +112,18 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
     return `${signature.slice(0, 8)}...${signature.slice(-8)}`;
   };
 
-  const getStatusColor = (err: TransactionError | null) => {
-    return err ? 'text-red-600' : 'text-green-600';
+  const getTokenTransferDetails = (tx: HeliusTransaction) => {
+    if (!filterByTokenMint || !tx.tokenTransfers || !address) return null;
+
+    const relevantTransfer = tx.tokenTransfers.find(t => t.mint === filterByTokenMint);
+    if (!relevantTransfer) return null;
+
+    const isSender = relevantTransfer.fromUserAccount?.toLowerCase() === address.toLowerCase();
+    
+    return {
+      change: relevantTransfer.tokenAmount,
+      isSender,
+    };
   };
 
   const getStatusBadge = (err: TransactionError | null) => {
@@ -146,11 +139,7 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
   };
 
   const formatSOL = (lamports: number) => {
-    return (lamports / 1000000000).toFixed(4);
-  };
-
-  const getTransactionFee = (tx: SolanaTransactionData) => {
-    return tx.transaction?.meta?.fee ? formatSOL(tx.transaction.meta.fee) : '0.0000';
+    return (lamports / 1000000000).toFixed(6);
   };
 
   if (!address) {
@@ -214,7 +203,7 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600 font-medium">Loading transactions...</p>
-            <p className="text-gray-500 text-sm">Fetching data from Solana network</p>
+            <p className="text-gray-500 text-sm">Fetching data from Helius</p>
           </div>
         </div>
       ) : (
@@ -225,79 +214,92 @@ const SolanaTransactions = ({ address, limit = 10 }: SolanaTransactionsProps) =>
                 <Clock className="h-10 w-10 text-gray-400" />
               </div>
               <h3 className="text-lg font-semibold mb-2">No Transactions Found</h3>
-              <p>This address doesn't have any recent transactions</p>
+              <p>This address doesn't have any recent PYUSD transactions</p>
             </div>
           ) : (
             <>
               <div className="text-sm text-gray-600 mb-4">
                 Showing {transactions.length} most recent transactions
               </div>
-              {transactions.map((tx: SolanaTransactionData, index: number) => (
-                <div key={tx.signature} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-blue-200 transition-all duration-200 bg-gradient-to-r from-white to-gray-50">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 rounded-full text-sm font-bold">
-                        {index + 1}
-                      </div>
-                      {getStatusBadge(tx.err)}
-                    </div>
-                    <div className="text-right">
-                      <div className="text-sm text-gray-500 mb-1">Slot</div>
-                      <div className="text-sm font-mono font-medium text-gray-700">
-                        {tx.slot?.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
+              {transactions.map((tx, index) => {
+                const explorerUrl = `https://explorer.solana.com/tx/${tx.signature}?cluster=${network}`;
+                const transferDetails = getTokenTransferDetails(tx);
 
-                  <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-lg border">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1">Transaction Signature</div>
-                      <span className="font-mono text-sm text-gray-800 font-medium">
-                        {formatSignature(tx.signature)}
-                      </span>
+                return (
+                  <div key={tx.signature} className="border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-blue-200 transition-all duration-200 bg-gradient-to-r from-white to-gray-50">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-8 h-8 bg-blue-100 text-blue-800 rounded-full text-sm font-bold">
+                          {index + 1}
+                        </div>
+                        {getStatusBadge(tx.transactionError)}
+                      </div>
+                      <div className="text-right">
+                        <div className="text-sm text-gray-500 mb-1">Slot</div>
+                        <div className="text-sm font-mono font-medium text-gray-700">
+                          {tx.slot?.toLocaleString()}
+                        </div>
+                      </div>
                     </div>
-                    <a
-                      href={`https://explorer.solana.com/tx/${tx.signature}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                    >
-                      View on Explorer
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div className="p-3 bg-white rounded-lg border">
-                      <div className="text-xs text-gray-500 mb-1">Timestamp</div>
-                      <div className="text-sm font-medium text-gray-800">
-                        {formatDate(tx.blockTime)}
+                    {transferDetails && (
+                      <div className={`flex items-center gap-3 mb-4 p-3 rounded-lg ${transferDetails.isSender ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
+                        {transferDetails.isSender ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownLeft className="h-5 w-5" />}
+                        <span className="font-medium">{transferDetails.isSender ? 'Sent' : 'Received'}</span>
+                        <span className="font-bold">{transferDetails.change.toFixed(2)} PYUSD</span>
                       </div>
-                    </div>
-                    <div className="p-3 bg-white rounded-lg border">
-                      <div className="text-xs text-gray-500 mb-1">Network Fee</div>
-                      <div className="text-sm font-medium text-gray-800">
-                        {getTransactionFee(tx)} SOL
-                      </div>
-                    </div>
-                    <div className="p-3 bg-white rounded-lg border">
-                      <div className="text-xs text-gray-500 mb-1">Instructions</div>
-                      <div className="text-sm font-medium text-gray-800">
-                        {tx.transaction?.transaction?.message?.instructions?.length || 0}
-                      </div>
-                    </div>
-                  </div>
+                    )}
 
-                  {tx.err && (
-                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <div className="text-xs text-red-600 font-medium mb-2">Transaction Error</div>
-                      <pre className="text-xs text-red-700 font-mono overflow-x-auto">
-                        {JSON.stringify(tx.err, null, 2)}
-                      </pre>
+                    <div className="flex items-center justify-between mb-4 p-3 bg-white rounded-lg border">
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Transaction Signature</div>
+                        <span className="font-mono text-sm text-gray-800 font-medium">
+                          {formatSignature(tx.signature)}
+                        </span>
+                      </div>
+                      <a
+                        href={explorerUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        View on Explorer
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                      <div className="p-3 bg-white rounded-lg border">
+                        <div className="text-xs text-gray-500 mb-1">Timestamp</div>
+                        <div className="text-sm font-medium text-gray-800">
+                          {formatDate(tx.timestamp)}
+                        </div>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg border">
+                        <div className="text-xs text-gray-500 mb-1">Network Fee</div>
+                        <div className="text-sm font-medium text-gray-800">
+                          {formatSOL(tx.fee)} SOL
+                        </div>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg border">
+                        <div className="text-xs text-gray-500 mb-1">Type</div>
+                        <div className="text-sm font-medium text-gray-800 capitalize">
+                          {tx.type.toLowerCase().replace(/_/g, ' ')}
+                        </div>
+                      </div>
+                    </div>
+
+                    {tx.transactionError && (
+                      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="text-xs text-red-600 font-medium mb-2">Transaction Error</div>
+                        <pre className="text-xs text-red-700 font-mono overflow-x-auto">
+                          {JSON.stringify(tx.transactionError, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </>
           )}
         </div>
